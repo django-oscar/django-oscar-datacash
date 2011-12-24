@@ -1,0 +1,5 @@
+*.pyc
+*.egg-info
+*.DS_Store
+*.swp
+integration.py
