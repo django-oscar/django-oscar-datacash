@@ -205,8 +205,12 @@ class Gateway(object):
         for key in required_keys:
             if key not in kwargs:
                 raise ValueError('You must provide a "%s" argument' % key)
-            if key in ('expiry_date', 'start_date') and not re.match(r'^\d{2}/\d{2}$', kwargs[key]):
+        for key in kwargs:
+            value = kwargs[key]
+            if key in ('expiry_date', 'start_date') and not re.match(r'^\d{2}/\d{2}$', value):
                 raise ValueError("%s not in format dd/yy" % key)
+            if key == 'issue_number' and not re.match(r'^\d{1,2}$', kwargs[key]):
+                raise ValueError("Issue number must be one or two digits (passed value: %s)" % value)
 
 
 

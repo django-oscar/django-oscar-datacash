@@ -103,13 +103,45 @@ class GatewayMockTests(TestCase):
         self.assertEquals('Mastercard', response['card_scheme'])
         self.assertEquals('United Kingdom', response['country'])
 
+    def gateway_auth(self, amount=D('1000.00'), currency='GBP', card_number='1000350000000007',
+            expiry_date='10/12', merchant_reference='TEST_132473839018', response_xml=None, **kwargs):
+        if response_xml is None:
+            self.gateway.do_request = Mock(return_value=SAMPLE_RESPONSE)
+        response = self.gateway.auth(amount=amount,
+                                     currency=currency,
+                                     card_number=card_number,
+                                     expiry_date=expiry_date,
+                                     merchant_reference=merchant_reference,
+                                     **kwargs)
+        return response
+
+    def test_startdate_is_included_in_request_xml(self):
+        response = self.gateway_auth(start_date='10/10')
+        
+        request_xml =  self.gateway.last_request_xml()
+        doc = parseString(request_xml)
+        
+        card_element = doc.getElementsByTagName('Card')[0]
+        date_element = card_element.getElementsByTagName('startdate')[0]
+        self.assertEqual('10/10', date_element.firstChild.data)
+
+    def test_issue_number_is_included_in_request_xml(self):
+        response = self.gateway_auth(issue_number='01')
+        
+        request_xml =  self.gateway.last_request_xml()
+        doc = parseString(request_xml)
+        
+        card_element = doc.getElementsByTagName('Card')[0]
+        issue_element = card_element.getElementsByTagName('issuenumber')[0]
+        self.assertEqual('01', issue_element.firstChild.data)
+
     def test_dates_are_validated_for_format(self):
         with self.assertRaises(ValueError):
-            response = self.gateway.auth(amount=D('1000.00'),
-                                         currency='GBP',
-                                         card_number='1000350000000007',
-                                         expiry_date='10/2012',
-                                         merchant_reference='TEST_132473839018')
+            self.gateway_auth(expiry_date='10/2012')
+
+    def test_issuenumber_is_validated_for_format(self):
+        with self.assertRaises(ValueError):
+            self.gateway.auth(issue_number='123')
 
 
 @skipUnless(getattr(settings, 'DATACASH_ENABLE_INTEGRATION_TESTS', False), "Currently disabled")
