@@ -75,6 +75,17 @@ class GatewayMockTests(TestCase):
     def setUp(self):
         self.gateway = Gateway('example.com', 'dummyclient', 'dummypassword')
 
+    def gateway_auth(self, amount=D('1000.00'), currency='GBP', card_number='1000350000000007',
+            expiry_date='10/12', merchant_reference='TEST_132473839018', response_xml=SAMPLE_RESPONSE, **kwargs):
+        self.gateway._fetch_response_xml = Mock(return_value=response_xml)
+        response = self.gateway.auth(amount=amount,
+                                     currency=currency,
+                                     card_number=card_number,
+                                     expiry_date=expiry_date,
+                                     merchant_reference=merchant_reference,
+                                     **kwargs)
+        return response
+
     def test_successful_auth(self):
         response_xml = """<?xml version="1.0" encoding="UTF-8"?>
 <Response>
@@ -90,12 +101,7 @@ class GatewayMockTests(TestCase):
     <status>1</status>
     <time>1324738433</time>
 </Response>"""
-        self.gateway._fetch_response_xml = Mock(return_value=response_xml)
-        response = self.gateway.auth(amount=D('1000.00'),
-                                     currency='GBP',
-                                     card_number='1000350000000007',
-                                     expiry_date='10/12',
-                                     merchant_reference='TEST_132473839018')
+        response = self.gateway_auth(response_xml=response_xml)
         self.assertEquals(1, response['status'])
         self.assertEquals('TEST_132473839018', response['merchant_reference'])
         self.assertEquals('ACCEPTED', response['reason'])
@@ -103,17 +109,27 @@ class GatewayMockTests(TestCase):
         self.assertEquals('Mastercard', response['card_scheme'])
         self.assertEquals('United Kingdom', response['country'])
 
-    def gateway_auth(self, amount=D('1000.00'), currency='GBP', card_number='1000350000000007',
-            expiry_date='10/12', merchant_reference='TEST_132473839018', response_xml=None, **kwargs):
-        if response_xml is None:
-            self.gateway._fetch_response_xml = Mock(return_value=SAMPLE_RESPONSE)
-        response = self.gateway.auth(amount=amount,
-                                     currency=currency,
-                                     card_number=card_number,
-                                     expiry_date=expiry_date,
-                                     merchant_reference=merchant_reference,
-                                     **kwargs)
-        return response
+    def test_unsuccessful_auth(self):
+        response_xml = """<?xml version="1.0" encoding="UTF-8"?>
+<Response>
+    <CardTxn>
+        <authcode>DECLINED</authcode> 
+        <card_scheme>Mastercard</card_scheme> 
+        <country>United Kingdom</country>
+    </CardTxn> 
+    <datacash_reference>4400200045583767</datacash_reference> 
+    <merchantreference>AA004630</merchantreference>
+    <mode>TEST</mode>
+    <reason>DECLINED</reason>
+    <status>7</status>
+    <time>1169223906</time>
+</Response>"""
+        response = self.gateway_auth(response_xml=response_xml)
+        self.assertEquals(7, response['status'])
+        self.assertEquals('AA004630', response['merchant_reference'])
+        self.assertEquals('DECLINED', response['reason'])
+        self.assertEquals('Mastercard', response['card_scheme'])
+        self.assertEquals('United Kingdom', response['country'])
 
     def test_startdate_is_included_in_request_xml(self):
         response = self.gateway_auth(start_date='10/10')

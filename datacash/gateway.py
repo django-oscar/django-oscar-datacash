@@ -149,9 +149,26 @@ class Gateway(object):
                 response[key] = self._get_element_text(doc, tag)
         return response
 
+    def _check_kwargs(self, kwargs, required_keys):
+        for key in required_keys:
+            if key not in kwargs:
+                raise ValueError('You must provide a "%s" argument' % key)
+        for key in kwargs:
+            value = kwargs[key]
+            if key in ('expiry_date', 'start_date') and not re.match(r'^\d{2}/\d{2}$', value):
+                raise ValueError("%s not in format dd/yy" % key)
+            if key == 'issue_number' and not re.match(r'^\d{1,2}$', kwargs[key]):
+                raise ValueError("Issue number must be one or two digits (passed value: %s)" % value)
+            if key == 'currency' and not re.match(r'^[A-Z]{3}$', kwargs[key]):
+                raise ValueError("Currency code must be a 3 character ISO 4217 code")
+            if key == 'merchant_reference' and not (6 <= len(value) <= 32):
+                raise ValueError("Merchant reference must be between 6 and 32 characters")
+
     # ===
     # API
     # ===
+
+    # "Initial" transaction types    
 
     def auth(self, **kwargs):
         """
@@ -206,20 +223,6 @@ class Gateway(object):
     def last_response_xml(self):
         return self._last_response_xml
     
-    def _check_kwargs(self, kwargs, required_keys):
-        for key in required_keys:
-            if key not in kwargs:
-                raise ValueError('You must provide a "%s" argument' % key)
-        for key in kwargs:
-            value = kwargs[key]
-            if key in ('expiry_date', 'start_date') and not re.match(r'^\d{2}/\d{2}$', value):
-                raise ValueError("%s not in format dd/yy" % key)
-            if key == 'issue_number' and not re.match(r'^\d{1,2}$', kwargs[key]):
-                raise ValueError("Issue number must be one or two digits (passed value: %s)" % value)
-            if key == 'currency' and not re.match(r'^[A-Z]{3}$', kwargs[key]):
-                raise ValueError("Currency code must be a 3 character ISO 4217 code")
-            if key == 'merchant_reference' and not (6 <= len(value) <= 32):
-                raise ValueError("Merchant reference must be between 6 and 32 characters")
 
 
 
