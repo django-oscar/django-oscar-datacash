@@ -103,8 +103,16 @@ class GatewayMockTests(TestCase):
         self.assertEquals('Mastercard', response['card_scheme'])
         self.assertEquals('United Kingdom', response['country'])
 
+    def test_dates_are_validated_for_format(self):
+        with self.assertRaises(ValueError):
+            response = self.gateway.auth(amount=D('1000.00'),
+                                         currency='GBP',
+                                         card_number='1000350000000007',
+                                         expiry_date='10/2012',
+                                         merchant_reference='TEST_132473839018')
 
-@skipUnless(hasattr(settings, 'DATACASH_CLIENT'), "No integration credentials provided")
+
+@skipUnless(getattr(settings, 'DATACASH_ENABLE_INTEGRATION_TESTS', False), "Currently disabled")
 class GatewayIntegrationTests(TestCase):
 
     def setUp(self):

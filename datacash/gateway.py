@@ -2,6 +2,7 @@ import datetime
 from xml.dom.minidom import Document, parseString
 import httplib
 import urllib
+import re
 
 from django.conf import settings
 from django.db import transaction
@@ -203,7 +204,10 @@ class Gateway(object):
     def _check_kwargs(self, kwargs, required_keys):
         for key in required_keys:
             if key not in kwargs:
-                raise RuntimeError('You must provide a "%s" argument' % key)
+                raise ValueError('You must provide a "%s" argument' % key)
+            if key in ('expiry_date', 'start_date') and not re.match(r'^\d{2}/\d{2}$', kwargs[key]):
+                raise ValueError("%s not in format dd/yy" % key)
+
 
 
 class Facade(object):
