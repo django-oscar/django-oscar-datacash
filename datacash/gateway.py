@@ -3,6 +3,7 @@ from xml.dom.minidom import Document, parseString
 import httplib
 import urllib
 import re
+from collections import Mapping
 
 from django.conf import settings
 from django.db import transaction
@@ -24,6 +25,22 @@ TXN_REFUND = 'txn_refund'
 
 # Status codes
 ACCEPTED, DECLINED, INVALID_CREDENTIALS = '1', '7', '10'
+
+
+class Response(object):
+    """
+    Encapsulate a Datacash response
+    """
+
+    def __init__(self, data, response_xml):
+        self.data = data
+        self.response_xml = response_xml
+
+    def __getitem__(self, key):
+        return self.data[key]
+ 
+    def was_authorised(self):
+        return self.data.get('status', None) == ACCEPTED
 
 
 class Gateway(object):
@@ -137,17 +154,17 @@ class Gateway(object):
 
     def _build_response_dict(self, response_xml, extra_elements=None):
         doc = parseString(response_xml)
-        response = {'status': int(self._get_element_text(doc, 'status')),
-                    'datacash_reference': self._get_element_text(doc, 'datacash_reference'),
-                    'merchant_reference': self._get_element_text(doc, 'merchantreference'),
-                    'reason': self._get_element_text(doc, 'reason'),
-                    'card_scheme': self._get_element_text(doc, 'card_scheme'),
-                    'country': self._get_element_text(doc, 'country'),
-                    }
+        data = {'status': self._get_element_text(doc, 'status'),
+                'datacash_reference': self._get_element_text(doc, 'datacash_reference'),
+                'merchant_reference': self._get_element_text(doc, 'merchantreference'),
+                'reason': self._get_element_text(doc, 'reason'),
+                'card_scheme': self._get_element_text(doc, 'card_scheme'),
+                'country': self._get_element_text(doc, 'country'),
+                }
         if extra_elements:
             for tag, key in extra_elements.items():
-                response[key] = self._get_element_text(doc, tag)
-        return response
+                data[key] = self._get_element_text(doc, tag)
+        return Response(data, response_xml)
 
     def _check_kwargs(self, kwargs, required_keys):
         for key in required_keys:

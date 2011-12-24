@@ -102,12 +102,13 @@ class GatewayMockTests(TestCase):
     <time>1324738433</time>
 </Response>"""
         response = self.gateway_auth(response_xml=response_xml)
-        self.assertEquals(1, response['status'])
+        self.assertEquals('1', response['status'])
         self.assertEquals('TEST_132473839018', response['merchant_reference'])
         self.assertEquals('ACCEPTED', response['reason'])
         self.assertEquals('100000', response['auth_code'])
         self.assertEquals('Mastercard', response['card_scheme'])
         self.assertEquals('United Kingdom', response['country'])
+        self.assertTrue(response.was_authorised())
 
     def test_unsuccessful_auth(self):
         response_xml = """<?xml version="1.0" encoding="UTF-8"?>
@@ -125,11 +126,12 @@ class GatewayMockTests(TestCase):
     <time>1169223906</time>
 </Response>"""
         response = self.gateway_auth(response_xml=response_xml)
-        self.assertEquals(7, response['status'])
+        self.assertEquals('7', response['status'])
         self.assertEquals('AA004630', response['merchant_reference'])
         self.assertEquals('DECLINED', response['reason'])
         self.assertEquals('Mastercard', response['card_scheme'])
         self.assertEquals('United Kingdom', response['country'])
+        self.assertFalse(response.was_authorised())
 
     def test_startdate_is_included_in_request_xml(self):
         response = self.gateway_auth(start_date='10/10')
@@ -197,3 +199,16 @@ class GatewayIntegrationTests(TestCase):
         self.assertEquals('100000', response['auth_code'])
         self.assertEquals('Mastercard', response['card_scheme'])
         self.assertEquals('United Kingdom', response['country'])
+
+    def test_declined_auth(self):
+        ref = self.generate_merchant_reference()
+        response = self.gateway.auth(amount=D('1000.02'),
+                                     currency='GBP',
+                                     card_number='4444333322221111',
+                                     expiry_date='10/12',
+                                     merchant_reference=ref)
+        self.assertEquals(7, response['status'])
+        self.assertEquals(ref, response['merchant_reference'])
+        self.assertEquals('DECLINED', response['reason'])
+        self.assertEquals('VISA', response['card_scheme'])
+        
