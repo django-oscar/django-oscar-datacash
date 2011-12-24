@@ -211,6 +211,8 @@ class Gateway(object):
                 raise ValueError("%s not in format dd/yy" % key)
             if key == 'issue_number' and not re.match(r'^\d{1,2}$', kwargs[key]):
                 raise ValueError("Issue number must be one or two digits (passed value: %s)" % value)
+            if key == 'currency' and not re.match(r'^[A-Z]{3}$', kwargs[key]):
+                raise ValueError("Currency code must be a 3 character ISO 4217 code")
 
 
 

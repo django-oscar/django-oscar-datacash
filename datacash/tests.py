@@ -143,6 +143,10 @@ class GatewayMockTests(TestCase):
         with self.assertRaises(ValueError):
             self.gateway.auth(issue_number='123')
 
+    def test_currency_is_validated_for_format(self):
+        with self.assertRaises(ValueError):
+            self.gateway_auth(currency='BGRR')
+
 
 @skipUnless(getattr(settings, 'DATACASH_ENABLE_INTEGRATION_TESTS', False), "Currently disabled")
 class GatewayIntegrationTests(TestCase):
