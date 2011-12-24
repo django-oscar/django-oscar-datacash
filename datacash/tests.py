@@ -90,7 +90,7 @@ class GatewayMockTests(TestCase):
     <status>1</status>
     <time>1324738433</time>
 </Response>"""
-        self.gateway.do_request = Mock(return_value=response_xml)
+        self.gateway._fetch_response_xml = Mock(return_value=response_xml)
         response = self.gateway.auth(amount=D('1000.00'),
                                      currency='GBP',
                                      card_number='1000350000000007',
@@ -106,7 +106,7 @@ class GatewayMockTests(TestCase):
     def gateway_auth(self, amount=D('1000.00'), currency='GBP', card_number='1000350000000007',
             expiry_date='10/12', merchant_reference='TEST_132473839018', response_xml=None, **kwargs):
         if response_xml is None:
-            self.gateway.do_request = Mock(return_value=SAMPLE_RESPONSE)
+            self.gateway._fetch_response_xml = Mock(return_value=SAMPLE_RESPONSE)
         response = self.gateway.auth(amount=amount,
                                      currency=currency,
                                      card_number=card_number,
@@ -146,6 +146,14 @@ class GatewayMockTests(TestCase):
     def test_currency_is_validated_for_format(self):
         with self.assertRaises(ValueError):
             self.gateway_auth(currency='BGRR')
+
+    def test_merchant_ref_is_validated_for_min_length(self):
+        with self.assertRaises(ValueError):
+            self.gateway_auth(merchant_reference='12345')
+
+    def test_merchant_ref_is_validated_for_max_length(self):
+        with self.assertRaises(ValueError):
+            self.gateway_auth(merchant_reference='123456789012345678901234567890123')
 
 
 @skipUnless(getattr(settings, 'DATACASH_ENABLE_INTEGRATION_TESTS', False), "Currently disabled")

@@ -36,7 +36,7 @@ class Gateway(object):
         self._password = password
         self._cv2avs = cv2avs
 
-    def do_request(self, request_xml):
+    def _fetch_response_xml(self, request_xml):
         # Need to fill in HTTP request here
         conn = httplib.HTTPSConnection(self._host, 443, timeout=30)
         headers = {"Content-type": "application/xml",
@@ -103,10 +103,12 @@ class Gateway(object):
                 self._create_element(doc, txn_details, 'merchantreference', kwargs['merchant_reference'])
             self._create_element(doc, txn_details, 'amount', str(kwargs['amount']), {'currency': kwargs['currency']})
         
-        # Save XML for later retrieval
-        self._last_request_xml = doc.toxml()
+        return doc.toxml()
         
-        return self.do_request(doc.toxml())
+    def _do_request(self, method, **kwargs):
+        request_xml = self._build_request_xml(method, **kwargs)
+        self._last_request_xml = request_xml
+        return self._fetch_response_xml(request_xml)
 
     def _add_cv2avs_elements(self, doc, card, kwargs):
         cv2avs = self._create_element(doc, card, 'Cv2Avs')
@@ -147,7 +149,9 @@ class Gateway(object):
                 response[key] = self._get_element_text(doc, tag)
         return response
 
+    # ===
     # API
+    # ===
 
     def auth(self, **kwargs):
         """
@@ -156,8 +160,9 @@ class Gateway(object):
         
         Note that currency should be ISO 4217 Alphabetic format.
         """ 
-        self._check_kwargs(kwargs, ['amount', 'currency', 'card_number', 'expiry_date', 'merchant_reference'])
-        response_xml = self._build_request_xml('auth', **kwargs)
+        self._check_kwargs(kwargs, ['amount', 'currency', 'card_number', 
+                                    'expiry_date', 'merchant_reference'])
+        response_xml = self._do_request(AUTH, **kwargs)
         return self._build_response_dict(response_xml, {'authcode': 'auth_code'})
         
     def pre(self, **kwargs):
@@ -166,33 +171,33 @@ class Gateway(object):
         so it can be fulfilled at a later time.
         """ 
         self._check_kwargs(kwargs, ['amount', 'currency', 'card_number', 'expiry_date', 'merchant_reference'])
-        response_xml = self._build_request_xml('pre', **kwargs)
+        response_xml = self._do_request(PRE, **kwargs)
         return self._build_response_dict(response_xml, {'authcode': 'auth_code'})
 
     def refund(self, **kwargs):
         self._check_kwargs(kwargs, ['amount', 'currency', 'card_number', 'expiry_date', 'merchant_reference'])
-        response_xml = self._build_request_xml('refund', **kwargs)
+        response_xml = self._do_request(REFUND, **kwargs)
         return self._build_response_dict(response_xml, {'authcode': 'auth_code'})
         
     def erp(self, **kwargs):
         self._check_kwargs(kwargs, ['amount', 'currency', 'card_number', 'expiry_date', 'merchant_reference'])
-        response_xml = self._build_request_xml('erp', **kwargs)
+        response_xml = self._do_request(ERP, **kwargs)
         return self._build_response_dict(response_xml, {'authcode': 'auth_code'})
         
     # "Historic" transaction types    
         
     def cancel(self, txn_reference): 
-        response_xml = self._build_request_xml('cancel', txn_reference=txn_reference)
+        response_xml = self._do_request(CANCEL, txn_reference=txn_reference)
         return self._build_response_dict(response_xml)
     
     def fulfil(self, **kwargs):
         self._check_kwargs(kwargs, ['amount', 'currency', 'txn_reference', 'auth_code'])
-        response_xml = self._build_request_xml('fulfil', **kwargs)
+        response_xml = self._do_request(FULFIL, **kwargs)
         return self._build_response_dict(response_xml)
     
     def txn_refund(self, **kwargs):
         self._check_kwargs(kwargs, ['amount', 'currency', 'txn_reference'])
-        response_xml = self._build_request_xml('txn_refund', **kwargs)
+        response_xml = self._do_request(TXN_REFUND, **kwargs)
         return self._build_response_dict(response_xml)
     
     def last_request_xml(self):
@@ -213,6 +218,8 @@ class Gateway(object):
                 raise ValueError("Issue number must be one or two digits (passed value: %s)" % value)
             if key == 'currency' and not re.match(r'^[A-Z]{3}$', kwargs[key]):
                 raise ValueError("Currency code must be a 3 character ISO 4217 code")
+            if key == 'merchant_reference' and not (6 <= len(value) <= 32):
+                raise ValueError("Merchant reference must be between 6 and 32 characters")
 
 
 
