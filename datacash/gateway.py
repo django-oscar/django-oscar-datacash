@@ -32,9 +32,29 @@ class Response(object):
     Encapsulate a Datacash response
     """
 
-    def __init__(self, data, response_xml):
-        self.data = data
+    def __init__(self, request_xml, response_xml):
+        self.request_xml = request_xml
         self.response_xml = response_xml
+        self.data = self._extract_data(response_xml)
+
+    def _extract_data(self, response_xml):
+        doc = parseString(response_xml)
+        data = {'status': self._get_element_text(doc, 'status'),
+                'datacash_reference': self._get_element_text(doc, 'datacash_reference'),
+                'merchant_reference': self._get_element_text(doc, 'merchantreference'),
+                'reason': self._get_element_text(doc, 'reason'),
+                'card_scheme': self._get_element_text(doc, 'card_scheme'),
+                'country': self._get_element_text(doc, 'country'),
+                'auth_code': self._get_element_text(doc, 'authcode')
+                }
+        return data
+
+    def _get_element_text(self, doc, tag):
+        try:
+            ele = doc.getElementsByTagName(tag)[0]
+        except IndexError:
+            return None
+        return ele.firstChild.data
 
     def __getitem__(self, key):
         return self.data[key]
@@ -73,9 +93,6 @@ class Gateway(object):
         if response.status != httplib.OK:
             raise GatewayError("Unable to communicate with payment gateway (code: %s, response: %s)" % (response.status, response_xml))
         conn.close()
-        
-        # Save response XML
-        self._last_response_xml = response_xml
         return response_xml
 
     def _build_request_xml(self, method_name, **kwargs):
@@ -133,8 +150,8 @@ class Gateway(object):
         
     def _do_request(self, method, **kwargs):
         request_xml = self._build_request_xml(method, **kwargs)
-        self._last_request_xml = request_xml
-        return self._fetch_response_xml(request_xml)
+        response_xml = self._fetch_response_xml(request_xml)
+        return Response(request_xml, response_xml)
 
     def _add_cv2avs_elements(self, doc, card, kwargs):
         cv2avs = self._create_element(doc, card, 'Cv2Avs')
@@ -154,13 +171,6 @@ class Gateway(object):
             [ele.setAttribute(k, v) for k,v in attributes.items()]
         return ele
     
-    def _get_element_text(self, doc, tag):
-        try:
-            ele = doc.getElementsByTagName(tag)[0]
-        except IndexError:
-            return None
-        return ele.firstChild.data
-
     def _build_response_dict(self, response_xml, extra_elements=None):
         doc = parseString(response_xml)
         data = {'status': self._get_element_text(doc, 'status'),
@@ -205,8 +215,7 @@ class Gateway(object):
         """ 
         self._check_kwargs(kwargs, ['amount', 'currency', 'card_number', 
                                     'expiry_date', 'merchant_reference'])
-        response_xml = self._do_request(AUTH, **kwargs)
-        return self._build_response_dict(response_xml, {'authcode': 'auth_code'})
+        return self._do_request(AUTH, **kwargs)
         
     def pre(self, **kwargs):
         """
@@ -215,18 +224,15 @@ class Gateway(object):
         """ 
         self._check_kwargs(kwargs, ['amount', 'currency', 'card_number', 
                                     'expiry_date', 'merchant_reference'])
-        response_xml = self._do_request(PRE, **kwargs)
-        return self._build_response_dict(response_xml, {'authcode': 'auth_code'})
+        return self._do_request(PRE, **kwargs)
 
     def refund(self, **kwargs):
         self._check_kwargs(kwargs, ['amount', 'currency', 'card_number', 'expiry_date', 'merchant_reference'])
-        response_xml = self._do_request(REFUND, **kwargs)
-        return self._build_response_dict(response_xml, {'authcode': 'auth_code'})
+        return self._do_request(REFUND, **kwargs)
         
     def erp(self, **kwargs):
         self._check_kwargs(kwargs, ['amount', 'currency', 'card_number', 'expiry_date', 'merchant_reference'])
-        response_xml = self._do_request(ERP, **kwargs)
-        return self._build_response_dict(response_xml, {'authcode': 'auth_code'})
+        return self._do_request(ERP, **kwargs)
         
     # "Historic" transaction types    
         
@@ -237,8 +243,7 @@ class Gateway(object):
         AUTH txns can only be cancelled before the end of the day when they
         are settled.
         """
-        response_xml = self._do_request(CANCEL, txn_reference=txn_reference)
-        return self._build_response_dict(response_xml)
+        return self._do_request(CANCEL, txn_reference=txn_reference)
     
     def fulfill(self, **kwargs):
         """
@@ -246,19 +251,11 @@ class Gateway(object):
         the next working day.
         """
         self._check_kwargs(kwargs, ['amount', 'currency', 'txn_reference', 'auth_code'])
-        response_xml = self._do_request(FULFILL, **kwargs)
-        return self._build_response_dict(response_xml)
+        return self._do_request(FULFILL, **kwargs)
     
     def txn_refund(self, **kwargs):
         """
         Refund against a specific transaction
         """
         self._check_kwargs(kwargs, ['amount', 'currency', 'txn_reference'])
-        response_xml = self._do_request(TXN_REFUND, **kwargs)
-        return self._build_response_dict(response_xml)
-    
-    def last_request_xml(self):
-        return self._last_request_xml
-    
-    def last_response_xml(self):
-        return self._last_response_xml
+        return self._do_request(TXN_REFUND, **kwargs)

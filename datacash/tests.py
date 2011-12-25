@@ -140,7 +140,7 @@ class GatewayMockTests(TestCase):
     def test_startdate_is_included_in_request_xml(self):
         response = self.gateway_auth(start_date='10/10')
         
-        request_xml =  self.gateway.last_request_xml()
+        request_xml = response.request_xml
         doc = parseString(request_xml)
         
         card_element = doc.getElementsByTagName('Card')[0]
@@ -150,7 +150,7 @@ class GatewayMockTests(TestCase):
     def test_issue_number_is_included_in_request_xml(self):
         response = self.gateway_auth(issue_number='01')
         
-        request_xml =  self.gateway.last_request_xml()
+        request_xml = response.request_xml
         doc = parseString(request_xml)
         
         card_element = doc.getElementsByTagName('Card')[0]
@@ -195,6 +195,7 @@ class GatewayMockTests(TestCase):
 class ResponseTests(TestCase):
 
     def setUp(self):
+        request_xml = ""
         response_xml = """<?xml version="1.0" encoding="UTF-8"?>
 <Response>
   <datacash_reference>4500203021916406</datacash_reference>
@@ -204,11 +205,7 @@ class ResponseTests(TestCase):
   <status>1</status>
   <time>1324832003</time>
 </Response>"""
-        data = {'status': '1',
-                'reason': 'CANCELLED OK',
-                'datacash_reference': '4500203021916406',
-                'merchant_reference': '4500203021916406',}
-        self.response = Response(data, response_xml)
+        self.response = Response(request_xml, response_xml)
 
     def test_dict_access(self):
         self.assertEquals('1', self.response['status'])
