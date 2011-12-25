@@ -22,6 +22,10 @@ to create the appropriate models.
 Settings
 --------
 
-``DATACASH_HOST`` - Host of DataCash server
-``DATACASH_CLIENT`` - Username
-``DATACASH_PASSWORD`` - Password
+* ``DATACASH_HOST`` - Host of DataCash server
+
+* ``DATACASH_CLIENT`` - Username
+
+* ``DATACASH_PASSWORD`` - Password
+
+* ``DATACASH_CURRENCY`` - Currency to use for transactions

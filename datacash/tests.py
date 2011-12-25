@@ -86,6 +86,10 @@ class GatewayMockTests(TestCase):
                                      **kwargs)
         return response
 
+    def gateway_cancel(self, datacash_reference='132473839018', response_xml=SAMPLE_RESPONSE, **kwargs):
+        self.gateway._fetch_response_xml = Mock(return_value=response_xml)
+        return self.gateway.cancel(datacash_reference, **kwargs)
+
     def test_successful_auth(self):
         response_xml = """<?xml version="1.0" encoding="UTF-8"?>
 <Response>
@@ -108,7 +112,7 @@ class GatewayMockTests(TestCase):
         self.assertEquals('100000', response['auth_code'])
         self.assertEquals('Mastercard', response['card_scheme'])
         self.assertEquals('United Kingdom', response['country'])
-        self.assertTrue(response.was_authorised())
+        self.assertTrue(response.is_successful())
 
     def test_unsuccessful_auth(self):
         response_xml = """<?xml version="1.0" encoding="UTF-8"?>
@@ -131,7 +135,7 @@ class GatewayMockTests(TestCase):
         self.assertEquals('DECLINED', response['reason'])
         self.assertEquals('Mastercard', response['card_scheme'])
         self.assertEquals('United Kingdom', response['country'])
-        self.assertFalse(response.was_authorised())
+        self.assertFalse(response.is_successful())
 
     def test_startdate_is_included_in_request_xml(self):
         response = self.gateway_auth(start_date='10/10')
@@ -173,9 +177,29 @@ class GatewayMockTests(TestCase):
         with self.assertRaises(ValueError):
             self.gateway_auth(merchant_reference='123456789012345678901234567890123')
 
+    def test_successful_cancel_response(self):
+        response_xml = """<?xml version="1.0" encoding="UTF-8"?>
+<Response>
+  <datacash_reference>4500203021916406</datacash_reference>
+  <merchantreference>4500203021916406</merchantreference>
+  <mode>TEST</mode>
+  <reason>CANCELLED OK</reason>
+  <status>1</status>
+  <time>1324832003</time>
+</Response>"""
+        response = self.gateway_cancel(response_xml=response_xml)
+        self.assertEquals('CANCELLED OK', response['reason'])
+        self.assertTrue(response.is_successful())
+
+
 
 @skipUnless(getattr(settings, 'DATACASH_ENABLE_INTEGRATION_TESTS', False), "Currently disabled")
 class GatewayIntegrationTests(TestCase):
+    """
+    There can be problems with DataCash speed limits when running these tests as
+    you aren't supposed to perform a transaction with the same card more
+    than once every two minutes.
+    """
 
     def setUp(self):
         self.gateway = Gateway(settings.DATACASH_HOST,
@@ -193,7 +217,7 @@ class GatewayIntegrationTests(TestCase):
                                      card_number='1000350000000007',
                                      expiry_date='10/12',
                                      merchant_reference=ref)
-        self.assertEquals(1, response['status'])
+        self.assertEquals('1', response['status'])
         self.assertEquals(ref, response['merchant_reference'])
         self.assertEquals('ACCEPTED', response['reason'])
         self.assertEquals('100000', response['auth_code'])
@@ -207,8 +231,21 @@ class GatewayIntegrationTests(TestCase):
                                      card_number='4444333322221111',
                                      expiry_date='10/12',
                                      merchant_reference=ref)
-        self.assertEquals(7, response['status'])
+        self.assertEquals('7', response['status'])
         self.assertEquals(ref, response['merchant_reference'])
         self.assertEquals('DECLINED', response['reason'])
         self.assertEquals('VISA', response['card_scheme'])
+
+    def test_cancel_auth(self):
+        ref = self.generate_merchant_reference()
+        response = self.gateway.auth(amount=D('1000.00'),
+                                     currency='GBP',
+                                     card_number='1000350000000007',
+                                     expiry_date='10/12',
+                                     merchant_reference=ref)
+        self.assertTrue(response.is_successful())
+        cancel_response = self.gateway.cancel(response['datacash_reference'])
+        self.assertEquals('1', response['status'])
+
+
         
