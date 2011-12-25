@@ -170,20 +170,6 @@ class Gateway(object):
         if attributes:
             [ele.setAttribute(k, v) for k,v in attributes.items()]
         return ele
-    
-    def _build_response_dict(self, response_xml, extra_elements=None):
-        doc = parseString(response_xml)
-        data = {'status': self._get_element_text(doc, 'status'),
-                'datacash_reference': self._get_element_text(doc, 'datacash_reference'),
-                'merchant_reference': self._get_element_text(doc, 'merchantreference'),
-                'reason': self._get_element_text(doc, 'reason'),
-                'card_scheme': self._get_element_text(doc, 'card_scheme'),
-                'country': self._get_element_text(doc, 'country'),
-                }
-        if extra_elements:
-            for tag, key in extra_elements.items():
-                data[key] = self._get_element_text(doc, tag)
-        return Response(data, response_xml)
 
     def _check_kwargs(self, kwargs, required_keys):
         for key in required_keys:
@@ -227,6 +213,9 @@ class Gateway(object):
         return self._do_request(PRE, **kwargs)
 
     def refund(self, **kwargs):
+        """
+        Refund against a card
+        """
         self._check_kwargs(kwargs, ['amount', 'currency', 'card_number', 'expiry_date', 'merchant_reference'])
         return self._do_request(REFUND, **kwargs)
         
