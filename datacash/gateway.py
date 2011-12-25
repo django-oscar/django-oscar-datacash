@@ -39,6 +39,9 @@ class Response(object):
     def __getitem__(self, key):
         return self.data[key]
 
+    def __contains__(self, key):
+        return key in self.data
+
     def __str__(self):
         return self.__unicode__()
 
@@ -77,7 +80,7 @@ class Gateway(object):
 
     def _build_request_xml(self, method_name, **kwargs):
         """
-        Builds the XML for a 'initial' transaction
+        Builds the XML for a transaction
         """
         doc = Document()
         req = self._create_element(doc, doc, 'Request')
@@ -210,7 +213,8 @@ class Gateway(object):
         Performs an 'pre' request, which is to ring-fence the requested money
         so it can be fulfilled at a later time.
         """ 
-        self._check_kwargs(kwargs, ['amount', 'currency', 'card_number', 'expiry_date', 'merchant_reference'])
+        self._check_kwargs(kwargs, ['amount', 'currency', 'card_number', 
+                                    'expiry_date', 'merchant_reference'])
         response_xml = self._do_request(PRE, **kwargs)
         return self._build_response_dict(response_xml, {'authcode': 'auth_code'})
 
@@ -236,12 +240,19 @@ class Gateway(object):
         response_xml = self._do_request(CANCEL, txn_reference=txn_reference)
         return self._build_response_dict(response_xml)
     
-    def fulfil(self, **kwargs):
+    def fulfill(self, **kwargs):
+        """
+        Settle a previous PRE transaction.  The actual settlement will take place
+        the next working day.
+        """
         self._check_kwargs(kwargs, ['amount', 'currency', 'txn_reference', 'auth_code'])
-        response_xml = self._do_request(FULFIL, **kwargs)
+        response_xml = self._do_request(FULFILL, **kwargs)
         return self._build_response_dict(response_xml)
     
     def txn_refund(self, **kwargs):
+        """
+        Refund against a specific transaction
+        """
         self._check_kwargs(kwargs, ['amount', 'currency', 'txn_reference'])
         response_xml = self._do_request(TXN_REFUND, **kwargs)
         return self._build_response_dict(response_xml)

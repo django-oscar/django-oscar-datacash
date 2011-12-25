@@ -10,7 +10,7 @@ from django.test import TestCase
 from django.conf import settings
 
 from datacash.models import OrderTransaction
-from datacash.gateway import Gateway
+from datacash.gateway import Gateway, Response
 from oscar.apps.payment.utils import Bankcard
 
 
@@ -192,6 +192,30 @@ class GatewayMockTests(TestCase):
         self.assertTrue(response.is_successful())
 
 
+class ResponseTests(TestCase):
+
+    def setUp(self):
+        response_xml = """<?xml version="1.0" encoding="UTF-8"?>
+<Response>
+  <datacash_reference>4500203021916406</datacash_reference>
+  <merchantreference>4500203021916406</merchantreference>
+  <mode>TEST</mode>
+  <reason>CANCELLED OK</reason>
+  <status>1</status>
+  <time>1324832003</time>
+</Response>"""
+        data = {'status': '1',
+                'reason': 'CANCELLED OK',
+                'datacash_reference': '4500203021916406',
+                'merchant_reference': '4500203021916406',}
+        self.response = Response(data, response_xml)
+
+    def test_dict_access(self):
+        self.assertEquals('1', self.response['status'])
+
+    def test_in_access(self):
+        self.assertTrue('status' in self.response)
+
 
 @skipUnless(getattr(settings, 'DATACASH_ENABLE_INTEGRATION_TESTS', False), "Currently disabled")
 class GatewayIntegrationTests(TestCase):
@@ -240,12 +264,57 @@ class GatewayIntegrationTests(TestCase):
         ref = self.generate_merchant_reference()
         response = self.gateway.auth(amount=D('1000.00'),
                                      currency='GBP',
-                                     card_number='1000350000000007',
+                                     card_number='1000011000000005',
                                      expiry_date='10/12',
                                      merchant_reference=ref)
         self.assertTrue(response.is_successful())
         cancel_response = self.gateway.cancel(response['datacash_reference'])
         self.assertEquals('1', response['status'])
 
+    def test_refund_auth(self):
+        ref = self.generate_merchant_reference()
+        refund_response = self.gateway.refund(amount=D('200.00'),
+                                              currency='GBP',
+                                              card_number='1000010000000007',
+                                              expiry_date='10/12',
+                                              merchant_reference=ref)
+        self.assertTrue(refund_response.is_successful())
 
-        
+    def test_txn_refund_of_auth(self):
+        ref = self.generate_merchant_reference()
+        response = self.gateway.auth(amount=D('1000.00'),
+                                     currency='GBP',
+                                     card_number='1000011100000004',
+                                     expiry_date='10/12',
+                                     merchant_reference=ref)
+        self.assertTrue(response.is_successful())
+        cancel_response = self.gateway.txn_refund(txn_reference=response['datacash_reference'],
+                                                  amount=D('1000.00'),
+                                                  currency='GBP')
+        self.assertTrue(response.is_successful())
+
+    def test_pre(self):
+        ref = self.generate_merchant_reference()
+        response = self.gateway.pre(amount=D('1000.00'),
+                                    currency='GBP',
+                                    card_number='1000020000000014',
+                                    expiry_date='10/12',
+                                    merchant_reference=ref)
+        self.assertTrue(response.is_successful())
+        self.assertTrue(response['auth_code'])
+
+    def test_fulfill(self):
+        ref = self.generate_merchant_reference()
+        pre_response = self.gateway.pre(amount=D('1000.00'),
+                                        currency='GBP',
+                                        card_number='1000070000000001',
+                                        expiry_date='10/12',
+                                        merchant_reference=ref)
+        self.assertTrue(pre_response.is_successful())
+
+        response = self.gateway.fulfill(amount=D('800.00'),
+                                        currency='GBP',
+                                        auth_code=pre_response['auth_code'],
+                                        txn_reference=pre_response['datacash_reference'])
+        self.assertEquals('FULFILLED OK', response['reason'])
+        self.assertTrue(response.is_successful())
