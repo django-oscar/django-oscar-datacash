@@ -8,9 +8,10 @@ class Facade(object):
     """
     
     def __init__(self):
-        self.gateway = Gateway(settings.DATACASH_CLIENT, 
-                               settings.DATACASH_PASSWORD, 
-                               settings.DATACASH_HOST)
+        self.gateway = Gateway(settings.DATACASH_HOST,
+                               settings.DATACASH_CLIENT, 
+                               settings.DATACASH_PASSWORD,
+                               settings.DATACASH_USE_CV2AVS)
         self.currency = settings.DATACASH_CURRENCY
 
     def pre_auth(self):

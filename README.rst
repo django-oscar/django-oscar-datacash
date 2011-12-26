@@ -5,7 +5,7 @@ Datacash package for django-oscar
 Installation
 ------------
 
-From PyPi::
+From PyPi (not ready just yet)::
 
     pip install django-oscar-datacash
 
@@ -29,3 +29,5 @@ Settings
 * ``DATACASH_PASSWORD`` - Password
 
 * ``DATACASH_CURRENCY`` - Currency to use for transactions
+
+* ``DATACASH_USE_CV2AVS`` - Whether to pass CV2AVS data

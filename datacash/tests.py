@@ -53,6 +53,10 @@ SAMPLE_RESPONSE = """<?xml version="1.0" encoding="UTF-8" ?>
 </Response>"""
 
 
+class FacadeTests(TestCase):
+    pass
+
+
 class TransactionModelTests(TestCase):
     
     def test_cc_numbers_are_not_saved_in_xml(self):
@@ -70,7 +74,33 @@ class TransactionModelTests(TestCase):
         self.assertEqual('XXXXXXXXXXXX0004', element.firstChild.data)
 
 
-class GatewayMockTests(TestCase):
+class GatewayWithCV2AVSMockTests(TestCase):
+
+    def setUp(self):
+        self.gateway = Gateway('example.com', 'dummyclient', 'dummypassword', True)
+
+    def gateway_auth(self, amount=D('1000.00'), currency='GBP', card_number='1000350000000007',
+            expiry_date='10/12', merchant_reference='TEST_132473839018', response_xml=SAMPLE_RESPONSE, **kwargs):
+        self.gateway._fetch_response_xml = Mock(return_value=response_xml)
+        response = self.gateway.auth(amount=amount,
+                                     currency=currency,
+                                     card_number=card_number,
+                                     expiry_date=expiry_date,
+                                     merchant_reference=merchant_reference,
+                                     **kwargs)
+        return response
+
+    def test_ccv_is_included_in_request(self):
+        response = self.gateway_auth(ccv='456')
+
+        doc = parseString(response.request_xml)
+        card_element = doc.getElementsByTagName('Card')[0]
+        cv2avs_element = card_element.getElementsByTagName('Cv2Avs')[0]
+        cv2_element = cv2avs_element.getElementsByTagName('cv2')[0]
+        self.assertEqual('456', cv2_element.firstChild.data)
+
+
+class GatewayWithoutCV2AVSMockTests(TestCase):
 
     def setUp(self):
         self.gateway = Gateway('example.com', 'dummyclient', 'dummypassword')
