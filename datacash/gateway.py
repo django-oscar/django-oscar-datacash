@@ -154,9 +154,20 @@ class Gateway(object):
         return Response(request_xml, response_xml)
 
     def _add_cv2avs_elements(self, doc, card, kwargs):
+        """
+        Add CV2AVS anti-fraud elements.  Extended policy isn't 
+        handled yet.
+        """
         cv2avs = self._create_element(doc, card, 'Cv2Avs')
+        for n in range(1, 5):
+            key = 'address_line%d' % n
+            if key in kwargs:
+                self._create_element(doc, cv2avs, 'street_address%n' % n, kwargs[key])
+        if 'postcode' in kwargs:
+            self._create_element(doc, cv2avs, 'postcode', kwargs['postcode'])
         if 'ccv' in kwargs:
             self._create_element(doc, cv2avs, 'cv2', kwargs['ccv'])
+
 
     def _create_element(self, doc, parent, tag, value=None, attributes=None):
         """

@@ -8,9 +8,9 @@ from unittest import skipUnless
 
 from django.test import TestCase
 from django.conf import settings
-
 from datacash.models import OrderTransaction
 from datacash.gateway import Gateway, Response
+from datacash.facade import Facade
 from oscar.apps.payment.utils import Bankcard
 
 
@@ -54,7 +54,16 @@ SAMPLE_RESPONSE = """<?xml version="1.0" encoding="UTF-8" ?>
 
 
 class FacadeTests(TestCase):
-    pass
+
+    def setUp(self):
+        self.facade = Facade()
+
+    def test_mechant_refs_are_unique(self):
+        order_num = '12345'
+        ref1 = self.facade.generate_merchant_reference(order_num)
+        ref2 = self.facade.generate_merchant_reference(order_num)
+        self.assertNotEquals(ref1, ref2)
+
 
 
 class TransactionModelTests(TestCase):
