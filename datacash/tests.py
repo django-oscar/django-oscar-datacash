@@ -53,7 +53,22 @@ SAMPLE_RESPONSE = """<?xml version="1.0" encoding="UTF-8" ?>
 </Response>"""
 
 
-class FacadeTests(TestCase):
+class XmlTestingMixin(object):
+
+    def assertXmlElementEquals(self, xml_str, value, element_path):
+        doc = parseString(xml_str)
+        elements = element_path.split('.')
+        parent = doc
+        for element_name in elements:
+            sub_elements = parent.getElementsByTagName(element_name)
+            if len(sub_elements) == 0:
+                self.fail("No element matching '%s' found using XML string '%s'" % (element_name, element_path))
+                return
+            parent = sub_elements[0]
+        self.assertEqual(value, parent.firstChild.data)
+
+
+class FacadeTests(TestCase, XmlTestingMixin):
 
     def setUp(self):
         self.facade = Facade()
@@ -65,7 +80,7 @@ class FacadeTests(TestCase):
         self.assertNotEquals(ref1, ref2)
 
 
-class TransactionModelTests(TestCase):
+class TransactionModelTests(TestCase, XmlTestingMixin):
     
     def test_cc_numbers_are_not_saved_in_xml(self):
         txn = OrderTransaction.objects.create(order_number='1000',
@@ -77,12 +92,10 @@ class TransactionModelTests(TestCase):
                                               reason='ACCEPTED',
                                               request_xml=SAMPLE_REQUEST,
                                               response_xml=SAMPLE_RESPONSE)
-        doc = parseString(txn.request_xml)
-        element = doc.getElementsByTagName('pan')[0]
-        self.assertEqual('XXXXXXXXXXXX0004', element.firstChild.data)
+        self.assertXmlElementEquals(txn.request_xml, 'XXXXXXXXXXXX0004', 'Request.Transaction.CardTxn.Card.pan')
 
 
-class GatewayWithCV2AVSMockTests(TestCase):
+class GatewayWithCV2AVSMockTests(TestCase, XmlTestingMixin):
 
     def setUp(self):
         self.gateway = Gateway('example.com', 'dummyclient', 'dummypassword', True)
@@ -100,15 +113,10 @@ class GatewayWithCV2AVSMockTests(TestCase):
 
     def test_ccv_is_included_in_request(self):
         response = self.gateway_auth(ccv='456')
-
-        doc = parseString(response.request_xml)
-        card_element = doc.getElementsByTagName('Card')[0]
-        cv2avs_element = card_element.getElementsByTagName('Cv2Avs')[0]
-        cv2_element = cv2avs_element.getElementsByTagName('cv2')[0]
-        self.assertEqual('456', cv2_element.firstChild.data)
+        self.assertXmlElementEquals(response.request_xml, '456', 'Request.Transaction.CardTxn.Card.Cv2Avs.cv2')
 
 
-class GatewayWithoutCV2AVSMockTests(TestCase):
+class GatewayWithoutCV2AVSMockTests(TestCase, XmlTestingMixin):
 
     def setUp(self):
         self.gateway = Gateway('example.com', 'dummyclient', 'dummypassword')
@@ -177,23 +185,11 @@ class GatewayWithoutCV2AVSMockTests(TestCase):
 
     def test_startdate_is_included_in_request_xml(self):
         response = self.gateway_auth(start_date='10/10')
-        
-        request_xml = response.request_xml
-        doc = parseString(request_xml)
-        
-        card_element = doc.getElementsByTagName('Card')[0]
-        date_element = card_element.getElementsByTagName('startdate')[0]
-        self.assertEqual('10/10', date_element.firstChild.data)
+        self.assertXmlElementEquals(response.request_xml, '10/10', 'Request.Transaction.CardTxn.Card.startdate')
 
     def test_issue_number_is_included_in_request_xml(self):
         response = self.gateway_auth(issue_number='01')
-        
-        request_xml = response.request_xml
-        doc = parseString(request_xml)
-        
-        card_element = doc.getElementsByTagName('Card')[0]
-        issue_element = card_element.getElementsByTagName('issuenumber')[0]
-        self.assertEqual('01', issue_element.firstChild.data)
+        self.assertXmlElementEquals(response.request_xml, '01', 'Request.Transaction.CardTxn.Card.issuenumber')
 
     def test_dates_are_validated_for_format(self):
         with self.assertRaises(ValueError):
@@ -237,18 +233,6 @@ class GatewayWithoutCV2AVSMockTests(TestCase):
                                      previous_txn_reference='4500203021916406')
         self.assertXmlElementEquals(response.request_xml, 
             '4500203021916406', 'Request.Transaction.CardTxn.card_details')
-
-    def assertXmlElementEquals(self, xml_str, value, element_path):
-        doc = parseString(xml_str)
-        elements = element_path.split('.')
-        parent = doc
-        for element_name in elements:
-            sub_elements = parent.getElementsByTagName(element_name)
-            if len(sub_elements) == 0:
-                self.fail("No element matching '%s' found using XML string '%s'" % (element_name, element_path))
-                return
-            parent = sub_elements[0]
-        self.assertEqual(value, parent.firstChild.data)
 
 
 class ResponseTests(TestCase):
