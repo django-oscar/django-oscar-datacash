@@ -8,11 +8,11 @@ from unittest import skipUnless
 
 from django.test import TestCase
 from django.conf import settings
+from oscar.apps.payment.utils import Bankcard
+
 from datacash.models import OrderTransaction
 from datacash.gateway import Gateway, Response
 from datacash.facade import Facade
-from oscar.apps.payment.utils import Bankcard
-
 
 SAMPLE_REQUEST = """<?xml version="1.0" encoding="UTF-8" ?>
 <Request>
@@ -79,14 +79,30 @@ class FacadeTests(TestCase, XmlTestingMixin):
         ref2 = self.facade.generate_merchant_reference(order_num)
         self.assertNotEquals(ref1, ref2)
 
+    def test_auth_request_creates_txn_model(self):
+        self.facade.gateway._fetch_response_xml = Mock(return_value=SAMPLE_RESPONSE)
+        card = Bankcard('1000350000000007', '10/13', ccv='345')
+        self.facade.authorise('100001', D('123.22'), card)
+        txn = OrderTransaction.objects.filter(order_number='100001')[0]
+        self.assertEquals('auth', txn.method)
+        self.assertEquals(D('123.22'), txn.amount)
+        self.assertTrue(len(txn.request_xml) > 0)
+        self.assertTrue(len(txn.response_xml) > 0)
+
+    def test_auth_request_returns_datacash_ref(self):
+        self.facade.gateway._fetch_response_xml = Mock(return_value=SAMPLE_RESPONSE)
+        card = Bankcard('1000350000000007', '10/13', ccv='345')
+        ref = self.facade.authorise('100001', D('123.22'), card)
+        self.assertEquals('3000000088888888', ref)
+
 
 class TransactionModelTests(TestCase, XmlTestingMixin):
     
     def test_cc_numbers_are_not_saved_in_xml(self):
         txn = OrderTransaction.objects.create(order_number='1000',
                                               method='auth',
-                                              datacash_ref='3000000088888888',
-                                              merchant_ref='1000001',
+                                              datacash_reference='3000000088888888',
+                                              merchant_reference='1000001',
                                               amount=D('95.99'),
                                               status=1,
                                               reason='ACCEPTED',

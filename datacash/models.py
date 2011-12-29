@@ -12,10 +12,10 @@ class OrderTransaction(models.Model):
     # The 'method' of the transaction - one of 'auth', 'pre', 'cancel', ...
     method = models.CharField(max_length=12)
     amount = models.DecimalField(decimal_places=2, max_digits=12)
-    merchant_ref = models.CharField(max_length=128)
+    merchant_reference = models.CharField(max_length=128)
     
     # Response fields
-    datacash_ref = models.CharField(max_length=128)
+    datacash_reference = models.CharField(max_length=128)
     auth_code = models.CharField(max_length=128, blank=True, null=True)
     status = models.PositiveIntegerField()
     reason = models.CharField(max_length=255)
@@ -32,3 +32,6 @@ class OrderTransaction(models.Model):
             reg_ex = re.compile(r'\d{12}')
             self.request_xml = reg_ex.sub('XXXXXXXXXXXX', self.request_xml)
         super(OrderTransaction, self).save(*args, **kwargs)
+
+    def __unicode__(self):
+        return u'Datacash txn %s for order %s' % (self.datacash_ref, self.order_number)
