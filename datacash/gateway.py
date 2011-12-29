@@ -71,6 +71,9 @@ class Response(object):
     def is_successful(self):
         return self.data.get('status', None) == ACCEPTED
 
+    def is_declined(self):
+        return self.data.get('status', None) == DECLINED
+
 
 class Gateway(object):
 

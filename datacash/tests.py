@@ -260,7 +260,7 @@ class GatewayWithoutCV2AVSMockTests(TestCase, XmlTestingMixin):
             '4500203021916406', 'Request.Transaction.CardTxn.card_details')
 
 
-class ResponseTests(TestCase):
+class SuccessfulResponseTests(TestCase):
 
     def setUp(self):
         request_xml = ""
@@ -280,6 +280,36 @@ class ResponseTests(TestCase):
 
     def test_in_access(self):
         self.assertTrue('status' in self.response)
+
+    def test_is_successful(self):
+        self.assertTrue(self.response.is_successful())
+
+
+class DeclinedResponseTests(TestCase):
+
+    def setUp(self):
+        request_xml = ""
+        response_xml = """<?xml version="1.0" encoding="UTF-8"?>
+<Response>
+    <CardTxn>
+        <authcode>DECLINED</authcode> 
+        <card_scheme>Mastercard</card_scheme> 
+        <country>United Kingdom</country>
+    </CardTxn> 
+    <datacash_reference>4400200045583767</datacash_reference> 
+    <merchantreference>AA004630</merchantreference> 
+    <mode>TEST</mode>
+    <reason>DECLINED</reason>
+    <status>7</status>
+    <time>1169223906</time>
+</Response>"""
+        self.response = Response(request_xml, response_xml)
+
+    def test_is_successful(self):
+        self.assertFalse(self.response.is_successful())
+
+    def test_is_declined(self):
+        self.assertTrue(self.response.is_declined())
 
 
 @skipUnless(getattr(settings, 'DATACASH_ENABLE_INTEGRATION_TESTS', False), "Currently disabled")
