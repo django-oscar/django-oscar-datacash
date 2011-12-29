@@ -225,12 +225,21 @@ class GatewayWithoutCV2AVSMockTests(TestCase, XmlTestingMixin):
         self.assertEquals('CANCELLED OK', response['reason'])
         self.assertTrue(response.is_successful())
 
-    def test_prev_card_request(self):
+    def test_request_xml_for_auth_using_previous_transaction_ref(self):
         self.gateway._fetch_response_xml = Mock(return_value=SAMPLE_RESPONSE)
         response = self.gateway.auth(amount=D('1000.00'),
                                      currency='GBP',
                                      merchant_reference='TEST_132473839018',
                                      previous_txn_reference='4500203021916406')
+        self.assertXmlElementEquals(response.request_xml, 
+            '4500203021916406', 'Request.Transaction.CardTxn.card_details')
+
+    def test_request_xml_for_pre_using_previous_transaction_ref(self):
+        self.gateway._fetch_response_xml = Mock(return_value=SAMPLE_RESPONSE)
+        response = self.gateway.pre(amount=D('1000.00'),
+                                    currency='GBP',
+                                    merchant_reference='TEST_132473839018',
+                                    previous_txn_reference='4500203021916406')
         self.assertXmlElementEquals(response.request_xml, 
             '4500203021916406', 'Request.Transaction.CardTxn.card_details')
 

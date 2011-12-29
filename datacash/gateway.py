@@ -220,19 +220,18 @@ class Gateway(object):
         Performs an 'pre' request, which is to ring-fence the requested money
         so it can be fulfilled at a later time.
         """ 
-        self._check_kwargs(kwargs, ['amount', 'currency', 'card_number', 
-                                    'expiry_date', 'merchant_reference'])
+        self._check_kwargs(kwargs, ['amount', 'currency', 'merchant_reference'])
         return self._do_request(PRE, **kwargs)
 
     def refund(self, **kwargs):
         """
         Refund against a card
         """
-        self._check_kwargs(kwargs, ['amount', 'currency', 'card_number', 'expiry_date', 'merchant_reference'])
+        self._check_kwargs(kwargs, ['amount', 'currency', 'merchant_reference'])
         return self._do_request(REFUND, **kwargs)
         
     def erp(self, **kwargs):
-        self._check_kwargs(kwargs, ['amount', 'currency', 'card_number', 'expiry_date', 'merchant_reference'])
+        self._check_kwargs(kwargs, ['amount', 'currency', 'merchant_reference'])
         return self._do_request(ERP, **kwargs)
         
     # "Historic" transaction types    
