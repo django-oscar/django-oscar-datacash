@@ -65,7 +65,6 @@ class FacadeTests(TestCase):
         self.assertNotEquals(ref1, ref2)
 
 
-
 class TransactionModelTests(TestCase):
     
     def test_cc_numbers_are_not_saved_in_xml(self):
@@ -229,6 +228,27 @@ class GatewayWithoutCV2AVSMockTests(TestCase):
         response = self.gateway_cancel(response_xml=response_xml)
         self.assertEquals('CANCELLED OK', response['reason'])
         self.assertTrue(response.is_successful())
+
+    def test_prev_card_request(self):
+        self.gateway._fetch_response_xml = Mock(return_value=SAMPLE_RESPONSE)
+        response = self.gateway.auth(amount=D('1000.00'),
+                                     currency='GBP',
+                                     merchant_reference='TEST_132473839018',
+                                     previous_txn_reference='4500203021916406')
+        self.assertXmlElementEquals(response.request_xml, 
+            '4500203021916406', 'Request.Transaction.CardTxn.card_details')
+
+    def assertXmlElementEquals(self, xml_str, value, element_path):
+        doc = parseString(xml_str)
+        elements = element_path.split('.')
+        parent = doc
+        for element_name in elements:
+            sub_elements = parent.getElementsByTagName(element_name)
+            if len(sub_elements) == 0:
+                self.fail("No element matching '%s' found using XML string '%s'" % (element_name, element_path))
+                return
+            parent = sub_elements[0]
+        self.assertEqual(value, parent.firstChild.data)
 
 
 class ResponseTests(TestCase):

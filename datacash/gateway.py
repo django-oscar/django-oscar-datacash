@@ -111,25 +111,28 @@ class Gateway(object):
         txn = self._create_element(doc, req, 'Transaction') 
         
         # CardTxn
-        if 'card_number' in kwargs:
+        if 'card_number' in kwargs or 'previous_txn_reference' in kwargs:
             card_txn = self._create_element(doc, txn, 'CardTxn')
             self._create_element(doc, card_txn, 'method', method_name)
             
-            card = self._create_element(doc, card_txn, 'Card')
-            self._create_element(doc, card, 'pan', kwargs['card_number'])
-            self._create_element(doc, card, 'expirydate', kwargs['expiry_date'])
-            
-            if 'start_date' in kwargs:
-                self._create_element(doc, card, 'startdate', kwargs['start_date'])
-            
-            if 'issue_number' in kwargs:
-                self._create_element(doc, card, 'issuenumber', kwargs['issue_number'])
-          
-            if 'auth_code' in kwargs:
-                self._create_element(doc, card, 'authcode', kwargs['auth_code'])
+            if 'card_number' in kwargs:
+                card = self._create_element(doc, card_txn, 'Card')
+                self._create_element(doc, card, 'pan', kwargs['card_number'])
+                self._create_element(doc, card, 'expirydate', kwargs['expiry_date'])
                 
-            if self._cv2avs:
-                self._add_cv2avs_elements(doc, card, kwargs) 
+                if 'start_date' in kwargs:
+                    self._create_element(doc, card, 'startdate', kwargs['start_date'])
+                if 'issue_number' in kwargs:
+                    self._create_element(doc, card, 'issuenumber', kwargs['issue_number'])
+                if 'auth_code' in kwargs:
+                    self._create_element(doc, card, 'authcode', kwargs['auth_code'])
+                if self._cv2avs:
+                    self._add_cv2avs_elements(doc, card, kwargs) 
+                
+            elif 'previous_txn_reference' in kwargs:
+                self._create_element(doc, card_txn, 'card_details', kwargs['previous_txn_reference'],
+                                     attributes={'type': 'preregistered'})
+            
         
         # HistoricTxn
         if 'txn_reference' in kwargs:
@@ -167,7 +170,6 @@ class Gateway(object):
             self._create_element(doc, cv2avs, 'postcode', kwargs['postcode'])
         if 'ccv' in kwargs:
             self._create_element(doc, cv2avs, 'cv2', kwargs['ccv'])
-
 
     def _create_element(self, doc, parent, tag, value=None, attributes=None):
         """
@@ -210,8 +212,7 @@ class Gateway(object):
         
         Note that currency should be ISO 4217 Alphabetic format.
         """ 
-        self._check_kwargs(kwargs, ['amount', 'currency', 'card_number', 
-                                    'expiry_date', 'merchant_reference'])
+        self._check_kwargs(kwargs, ['amount', 'currency', 'merchant_reference'])
         return self._do_request(AUTH, **kwargs)
         
     def pre(self, **kwargs):
