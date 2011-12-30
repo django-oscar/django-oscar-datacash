@@ -1,7 +1,6 @@
 #!/usr/bin/env python
 from setuptools import setup, find_packages
 
-
 setup(name='django-oscar-datacash',
       version='0.1',
       url='https://github.com/tangentlabs/django-oscar-datacash',
@@ -12,10 +11,8 @@ setup(name='django-oscar-datacash',
       keywords="Payment, Datacash",
       license='BSD',
       platforms=['linux'],
-      packages=find_packages(exclude=["*.tests"]),
-      install_requires=[
-          'django-oscar',
-          ],
+      packages=find_packages(),
+      install_requires=[ 'django-oscar',],
       # See http://pypi.python.org/pypi?%3Aaction=list_classifiers
       classifiers=['Environment :: Web Environment',
                    'Framework :: Django',
