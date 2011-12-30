@@ -67,6 +67,12 @@ class Response(object):
 
     def __unicode__(self):
         return self.response_xml
+
+    @property
+    def status(self):
+        if 'status' in self.data and self.data['status'] is not None:
+            return int(self.data['status'])
+        return None
  
     def is_successful(self):
         return self.data.get('status', None) == ACCEPTED

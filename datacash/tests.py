@@ -89,11 +89,80 @@ class FacadeTests(TestCase, XmlTestingMixin):
         self.assertTrue(len(txn.request_xml) > 0)
         self.assertTrue(len(txn.response_xml) > 0)
 
+    def test_pre_request_creates_txn_model(self):
+        self.facade.gateway._fetch_response_xml = Mock(return_value=SAMPLE_RESPONSE)
+        card = Bankcard('1000350000000007', '10/13', ccv='345')
+        self.facade.pre_authorise('100001', D('123.22'), card)
+        txn = OrderTransaction.objects.filter(order_number='100001')[0]
+        self.assertEquals('pre', txn.method)
+        self.assertEquals(D('123.22'), txn.amount)
+        self.assertTrue(len(txn.request_xml) > 0)
+        self.assertTrue(len(txn.response_xml) > 0)
+
     def test_auth_request_returns_datacash_ref(self):
         self.facade.gateway._fetch_response_xml = Mock(return_value=SAMPLE_RESPONSE)
         card = Bankcard('1000350000000007', '10/13', ccv='345')
         ref = self.facade.authorise('100001', D('123.22'), card)
         self.assertEquals('3000000088888888', ref)
+
+    def test_auth_request_using_previous_txn_ref(self):
+        self.facade.gateway._fetch_response_xml = Mock(return_value=SAMPLE_RESPONSE)
+        ref = self.facade.authorise('100001', D('123.22'), txn_reference='3000000088888888')
+        self.assertEquals('3000000088888888', ref)
+
+    def test_refund_request(self):
+        self.facade.gateway._fetch_response_xml = Mock(return_value=SAMPLE_RESPONSE)
+        card = Bankcard('1000350000000007', '10/13', ccv='345')
+        ref = self.facade.refund('100005', D('123.22'), card)
+        txn = OrderTransaction.objects.filter(order_number='100005')[0]
+        self.assertEquals('refund', txn.method)
+
+    def test_successful_cancel_request(self):
+        response_xml = """<?xml version="1.0" encoding="UTF-8"?>
+<Response> 
+    <datacash_reference>4900200000000001</datacash_reference> 
+    <merchantreference>4900200000000001</merchantreference> 
+    <mode>TEST</mode>
+    <reason>CANCELLED OK</reason>
+    <status>1</status>
+    <time>1151567456</time>
+</Response>"""
+        self.facade.gateway._fetch_response_xml = Mock(return_value=response_xml)
+        ref = self.facade.cancel_transaction('100001', '3000000088888888')
+        self.assertEquals('4900200000000001', ref)
+
+    def test_successful_fulfill_request(self):
+        response_xml = """<?xml version="1.0" encoding="UTF-8"?>
+<Response> 
+    <datacash_reference>3900200000000001</datacash_reference> 
+    <merchantreference>3900200000000001</merchantreference> 
+    <mode>LIVE</mode>
+    <reason>FULFILLED OK</reason>
+    <status>1</status>
+    <time>1071567356</time>
+</Response>"""
+        self.facade.gateway._fetch_response_xml = Mock(return_value=response_xml)
+        self.facade.fulfill_transaction('100002', D('45.00'), '3000000088888888', '1234')
+        txn = OrderTransaction.objects.filter(order_number='100002')[0]
+        self.assertEquals('fulfill', txn.method)
+
+    def test_successful_refund_request(self):
+        response_xml = """<?xml version="1.0" encoding="UTF-8"?>
+<Response> 
+    <datacash_reference>4000000088889999</datacash_reference> 
+    <HistoricTxn>
+        <authcode>896876</authcode>
+    </HistoricTxn> 
+    <merchantreference>4100000088888888</merchantreference> 
+    <mode>LIVE</mode>
+    <reason>ACCEPTED</reason>
+    <status>1</status>
+    <time>1071567375</time>
+</Response>"""
+        self.facade.gateway._fetch_response_xml = Mock(return_value=response_xml)
+        self.facade.refund_transaction('100003', D('45.00'), '3000000088888888')
+        txn = OrderTransaction.objects.filter(order_number='100003')[0]
+        self.assertEquals('txn_refund', txn.method)
 
 
 class TransactionModelTests(TestCase, XmlTestingMixin):
@@ -283,6 +352,9 @@ class SuccessfulResponseTests(TestCase):
 
     def test_is_successful(self):
         self.assertTrue(self.response.is_successful())
+
+    def test_status_is_returned_correctly(self):
+        self.assertEquals(1, self.response.status)
 
 
 class DeclinedResponseTests(TestCase):
