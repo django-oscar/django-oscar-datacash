@@ -2,7 +2,7 @@ import datetime
 
 from django.db import transaction
 from django.conf import settings
-from oscar.apps.payment.exceptions import TransactionDeclined, InvalidGatewayRequestError
+from oscar.apps.payment.exceptions import UnableToTakePayment, InvalidGatewayRequestError
 
 from datacash import gateway
 from datacash.models import OrderTransaction
@@ -28,7 +28,7 @@ class Facade(object):
             return response['datacash_reference']
         elif response.is_declined():
             msg = self.get_friendly_decline_message(response)
-            raise TransactionDeclined(msg)
+            raise UnableToTakePayment(msg)
         else:
             msg = self.get_friendly_error_message(response)
             raise InvalidGatewayRequestError(msg)

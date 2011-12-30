@@ -6,6 +6,8 @@ This package provides integration with the payment gateway, DataCash.  It is des
 integrate seamlessly with the e-commerce framework `django-oscar`_ but can be used without 
 using oscar.
 
+.. _`django-oscar`: https://github.com/tangentlabs/django-oscar
+
 Getting started
 ===============
 
@@ -34,6 +36,9 @@ Edit your ``settings.py`` to set the following settings::
     DATACASH_HOST = 'testserver.datacash.com'
     DATACASH_CLIENT = '...'
     DATACASH_PASSWORD = '...'
+    DATACASH_CURRENCY = 'GBP
+
+There are other settings available (see below).
 
 Integration into checkout
 -------------------------
@@ -63,7 +68,7 @@ for further details on the various processing models that are available.
 Packages structure
 ==================
 
-There are two key componentswithin this package:
+There are two key components:
 
 Gateway
 -------

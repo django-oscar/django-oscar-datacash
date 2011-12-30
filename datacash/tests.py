@@ -9,7 +9,7 @@ from unittest import skipUnless
 from django.test import TestCase
 from django.conf import settings
 from oscar.apps.payment.utils import Bankcard
-from oscar.apps.payment.exceptions import TransactionDeclined, InvalidGatewayRequestError
+from oscar.apps.payment.exceptions import UnableToTakePayment, InvalidGatewayRequestError
 
 from datacash.models import OrderTransaction
 from datacash.gateway import Gateway, Response
@@ -182,7 +182,7 @@ class FacadeTests(TestCase, XmlTestingMixin):
 </Response>"""
         self.facade.gateway._fetch_response_xml = Mock(return_value=response_xml)
         card = Bankcard('1000350000000007', '10/13', ccv='345')
-        with self.assertRaises(TransactionDeclined):
+        with self.assertRaises(UnableToTakePayment):
             self.facade.pre_authorise('100001', D('123.22'), card)
 
     def test_invalid_request_exception_raised_for_error(self):
