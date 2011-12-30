@@ -27,6 +27,7 @@ if not settings.configured:
                 'django.contrib.sessions',
                 'django.contrib.sites',
                 'datacash',
+                'south',
                 ],
             ROOT_URLCONF='tests.urls',
             DEBUG=False,
@@ -38,14 +39,20 @@ from django.test.simple import DjangoTestSuiteRunner
 
 
 def run_tests():
-    # Modify path
-    parent = os.path.dirname(os.path.abspath(__file__))
-    sys.path.insert(0, parent)
+    if 'south' in settings.INSTALLED_APPS:
+        from south.management.commands import patch_for_test_db_setup
+        patch_for_test_db_setup()
 
     # Run tests
     test_runner = DjangoTestSuiteRunner(verbosity=2)
     failures = test_runner.run_tests(['datacash'])
     sys.exit(failures)
+
+def generate_migration():
+    from south.management.commands.schemamigration import Command
+    com = Command()
+    com.handle(app='datacash', initial=True)
+
 
 if __name__ == '__main__':
     run_tests()
