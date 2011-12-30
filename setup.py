@@ -3,9 +3,9 @@ from setuptools import setup, find_packages
 
 
 setup(name='django-oscar-datacash',
-      version='0.1-dev',
+      version='0.1',
       url='https://github.com/tangentlabs/django-oscar-datacash',
-      author="Tangent Labs",
+      author="David Winterbottom",
       author_email="david.winterbottom@tangentlabs.co.uk",
       description="Datacash payment module for django-oscar",
       long_description=open('README.rst').read(),

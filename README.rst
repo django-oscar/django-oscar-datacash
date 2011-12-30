@@ -126,3 +126,19 @@ Settings
 * ``DATACASH_CURRENCY`` - Currency to use for transactions
 
 * ``DATACASH_USE_CV2AVS`` - Whether to pass CV2AVS data
+
+Contributing
+============
+
+To work on ``django-oscar-datacash``, clone the repo, set up a virtualenv and install
+in develop mode::
+
+    python setup.py develop
+
+then install the testing dependencies::
+
+    pip install -r requirements.txt
+
+The test suite can then be run using::
+
+    ./run_tests.py

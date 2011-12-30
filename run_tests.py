@@ -29,7 +29,6 @@ if not settings.configured:
                 'datacash',
                 'south',
                 ],
-            ROOT_URLCONF='tests.urls',
             DEBUG=False,
             SITE_ID=1,
             **datacash_settings
