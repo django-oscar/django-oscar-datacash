@@ -9,6 +9,7 @@ from unittest import skipUnless
 from django.test import TestCase
 from django.conf import settings
 from oscar.apps.payment.utils import Bankcard
+from oscar.apps.payment.exceptions import TransactionDeclined, InvalidGatewayRequestError
 
 from datacash.models import OrderTransaction
 from datacash.gateway import Gateway, Response
@@ -163,6 +164,41 @@ class FacadeTests(TestCase, XmlTestingMixin):
         self.facade.refund_transaction('100003', D('45.00'), '3000000088888888')
         txn = OrderTransaction.objects.filter(order_number='100003')[0]
         self.assertEquals('txn_refund', txn.method)
+
+    def test_transaction_declined_exception_raised_for_decline(self):
+        response_xml = """<?xml version="1.0" encoding="UTF-8"?>
+<Response>
+    <CardTxn>
+        <authcode>DECLINED</authcode> 
+        <card_scheme>Mastercard</card_scheme> 
+        <country>United Kingdom</country>
+    </CardTxn> 
+    <datacash_reference>4400200045583767</datacash_reference>
+    <merchantreference>AA004630</merchantreference>
+    <mode>TEST</mode>
+    <reason>DECLINED</reason>
+    <status>7</status>
+    <time>1169223906</time>
+</Response>"""
+        self.facade.gateway._fetch_response_xml = Mock(return_value=response_xml)
+        card = Bankcard('1000350000000007', '10/13', ccv='345')
+        with self.assertRaises(TransactionDeclined):
+            self.facade.pre_authorise('100001', D('123.22'), card)
+
+    def test_invalid_request_exception_raised_for_error(self):
+        response_xml = """<?xml version="1.0" encoding="UTF-8"?>
+<Response> 
+    <datacash_reference>21859999000005679</datacash_reference>
+    <information>This vTID is not configured to process pre-registered card transactions.</information> 
+    <merchantreference>123403</merchantreference>
+    <reason>Prereg: Merchant Not Subscribed</reason>
+    <status>251</status>
+    <time>1074692433</time>
+</Response>"""
+        self.facade.gateway._fetch_response_xml = Mock(return_value=response_xml)
+        card = Bankcard('1000350000000007', '10/13', ccv='345')
+        with self.assertRaises(InvalidGatewayRequestError):
+            self.facade.pre_authorise('100001', D('123.22'), card)
 
 
 class TransactionModelTests(TestCase, XmlTestingMixin):
