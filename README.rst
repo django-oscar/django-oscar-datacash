@@ -22,7 +22,7 @@ or from Github::
 
     pip install -e git://github.com/tangentlabs/django-oscar-datacash.git#egg=django-oscar-datacash
 
-Add ``datacash`` to ``INSTALLED_APPS`` and run::
+Add ``'datacash'`` to ``INSTALLED_APPS`` and run::
 
     ./manage.py migrate datacash
 
@@ -36,34 +36,75 @@ Edit your ``settings.py`` to set the following settings::
     DATACASH_HOST = 'testserver.datacash.com'
     DATACASH_CLIENT = '...'
     DATACASH_PASSWORD = '...'
-    DATACASH_CURRENCY = 'GBP
+    DATACASH_CURRENCY = 'GBP'
 
-There are other settings available (see below).
+There are other settings available (see below).  Obviously, you'll need to
+specify different settings in your test environment as opposed to your
+production environment.  
 
 Integration into checkout
 -------------------------
 
-You'll need to use a subclass of ``oscar.apps.checkout.views.PaymentDetails`` within your own 
-checkout views.  Override the ``handle_payment`` method add your integration code.  An example
+You'll need to use a subclass of ``oscar.apps.checkout.views.PaymentDetailsView`` within your own 
+checkout views.  See `oscar's documentation`_ on how to create a local version of the checkout app.
+
+.. _`oscar's documentation`: http://django-oscar.readthedocs.org/en/latest/index.html
+
+Override the ``handle_payment`` method (which is blank by default) and add your integration code.  An example
 integration might look like::
 
     # myshop.checkout.views
+    from django.conf import settings
+    
     from oscar.apps.checkout.views import PaymentDetails as OscarPaymentDetails
     from oscar.apps.payment.utils import Bankcard
+    from oscar.apps.checkout.forms import BankcardForm
     from datacash.facade import Facade
 
     ...
 
-    class PaymentDetails(OscarPaymentDetails):
+    class PaymentDetailsView(OscarPaymentDetails):
+
+        def get_context_data(self):
+            ...
+            # Render a bankcard form
+            ctx['bankcard_form'] = BankcardForm()
+            ...
+            return ctx
+
+        def post(self, request, *args, **kwargs):
+            ... 
+            # Check bankcard form is valid
+            form = BankcardForm(request.POST)
+            if not form.is_valid():
+                ctx = self.get_context_data(**kwargs)
+                ctx['bankcard_form'] = form
+                return self.render_to_response(ctx)
+            super(PaymentDetailsView, self).post(request, *args, **kwargs)
 
         def handle_payment(self, order_number, total, **kwargs):
             # Create bankcard object
             ...
-            facade = Facade()
-            facade.authorise(order_number, total, bankcard)
 
-Oscar's view will handle the various exceptions that can get raised.  See DataCash's documentation
+            # Make request to DataCash - if there any problems (eg bankcard
+            # not valid / request refused by bank) then an exception would be 
+            # raised ahd handled)
+            facade = Facade()
+            datacash_ref = facade.pre_authorise(order_number, total, bankcard)
+
+            # Request was successful - record the "payment source".  As this 
+            # request was a 'pre-auth', we set the 'amount_allocated' - if we had
+            # performed an 'auth' request, then we woudl set 'amount_debited'.
+            source_type,_ = SourceType.objects.get_or_create(name='Datacash')
+            source = Source(source_type=source_type,
+                            currency=settings.DATACASH_CURRENCY,
+                            amount_allocated=total)
+            self.add_payment_source(source)
+
+Oscar's view will handle the various exceptions that can get raised.  See `DataCash's documentation`_
 for further details on the various processing models that are available.
+
+.. _`DataCash's documentation`: http://www.datacash.com/gettingproducts.php?id=Bank-Card-Processing-
 
 Packages structure
 ==================
