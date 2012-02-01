@@ -73,24 +73,22 @@ integration might look like::
             return ctx
 
         def post(self, request, *args, **kwargs):
-            ... 
             # Check bankcard form is valid
             form = BankcardForm(request.POST)
             if not form.is_valid():
                 ctx = self.get_context_data(**kwargs)
                 ctx['bankcard_form'] = form
                 return self.render_to_response(ctx)
+            
+            kwargs['bankcard'] = form.get_bankcard_obj()
             super(PaymentDetailsView, self).post(request, *args, **kwargs)
 
         def handle_payment(self, order_number, total, **kwargs):
-            # Create bankcard object
-            ...
-
             # Make request to DataCash - if there any problems (eg bankcard
             # not valid / request refused by bank) then an exception would be 
-            # raised ahd handled)
-            facade = Facade()
-            datacash_ref = facade.pre_authorise(order_number, total, bankcard)
+            # raised ahd handled) within oscar's PaymentDetails view.
+            bankcard = kwargs['bankcard']
+            datacash_ref = Facade().pre_authorise(order_number, total, bankcard)
 
             # Request was successful - record the "payment source".  As this 
             # request was a 'pre-auth', we set the 'amount_allocated' - if we had
@@ -98,7 +96,8 @@ integration might look like::
             source_type,_ = SourceType.objects.get_or_create(name='Datacash')
             source = Source(source_type=source_type,
                             currency=settings.DATACASH_CURRENCY,
-                            amount_allocated=total)
+                            amount_allocated=total,
+                            reference=datacash_ref)
             self.add_payment_source(source)
 
 Oscar's view will handle the various exceptions that can get raised.  See `DataCash's documentation`_
