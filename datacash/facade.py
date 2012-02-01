@@ -17,7 +17,9 @@ class Facade(object):
         self.gateway = gateway.Gateway(settings.DATACASH_HOST,
                                        settings.DATACASH_CLIENT, 
                                        settings.DATACASH_PASSWORD,
-                                       settings.DATACASH_USE_CV2AVS)
+                                       getattr(settings, 'DATACASH_USE_CV2AVS', False),
+                                       getattr(settings, 'DATACASH_CAPTURE_METHOD', 'ecomm')
+                                      )
         self.currency = settings.DATACASH_CURRENCY
 
     def handle_response(self, method, order_number, amount, response):

@@ -83,13 +83,14 @@ class Response(object):
 
 class Gateway(object):
 
-    def __init__(self, host, client, password, cv2avs=False):
+    def __init__(self, host, client, password, cv2avs=False, capturemethod='ecomm'):
         if host.startswith('http'):
             raise RuntimeError("DATACASH_HOST should not include http")
         self._host = host
         self._client = client
         self._password = password
         self._cv2avs = cv2avs
+        self._capturemethod = capturemethod
 
     def _fetch_response_xml(self, request_xml):
         # Need to fill in HTTP request here
@@ -152,11 +153,12 @@ class Gateway(object):
                 self._create_element(doc, historic_txn, 'authcode', kwargs['auth_code'])
         
         # TxnDetails
+        txn_details = self._create_element(doc, txn, 'TxnDetails')
+        if 'merchant_reference' in kwargs:
+            self._create_element(doc, txn_details, 'merchantreference', kwargs['merchant_reference'])
         if 'amount' in kwargs:
-            txn_details = self._create_element(doc, txn, 'TxnDetails')
-            if 'merchant_reference' in kwargs:
-                self._create_element(doc, txn_details, 'merchantreference', kwargs['merchant_reference'])
             self._create_element(doc, txn_details, 'amount', str(kwargs['amount']), {'currency': kwargs['currency']})
+        self._create_element(doc, txn_details, 'capturemethod', self._capturemethod)
         
         return doc.toxml()
         

@@ -20,7 +20,7 @@ From PyPi::
 
 or from Github::
 
-    pip install -e git://github.com/tangentlabs/django-oscar-datacash.git#egg=django-oscar-datacash
+    pip install git+git://github.com/tangentlabs/django-oscar-datacash.git#egg=django-oscar-datacash
 
 Add ``'datacash'`` to ``INSTALLED_APPS`` and run::
 
@@ -167,6 +167,8 @@ Settings
 * ``DATACASH_CURRENCY`` - Currency to use for transactions
 
 * ``DATACASH_USE_CV2AVS`` - Whether to pass CV2AVS data
+
+* ``DATACASH_CAPTURE_METHOD`` - The 'capture method' to use.  Defaults to 'ecomm'.
 
 Contributing
 ============

@@ -241,6 +241,10 @@ class GatewayWithCV2AVSMockTests(TestCase, XmlTestingMixin):
         response = self.gateway_auth(ccv='456')
         self.assertXmlElementEquals(response.request_xml, '456', 'Request.Transaction.CardTxn.Card.Cv2Avs.cv2')
 
+    def test_capture_method_defaults_to_ecomm(self):
+        response = self.gateway_auth()
+        self.assertXmlElementEquals(response.request_xml, 'ecomm', 'Request.Transaction.TxnDetails.capturemethod')
+
 
 class GatewayWithoutCV2AVSMockTests(TestCase, XmlTestingMixin):
 
