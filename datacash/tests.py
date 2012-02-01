@@ -90,6 +90,11 @@ class FacadeTests(TestCase, XmlTestingMixin):
         self.assertTrue(len(txn.request_xml) > 0)
         self.assertTrue(len(txn.response_xml) > 0)
 
+    def test_auth_request_with_integer_ccv(self):
+        self.facade.gateway._fetch_response_xml = Mock(return_value=SAMPLE_RESPONSE)
+        card = Bankcard('1000350000000007', '10/13', ccv=345)
+        self.facade.authorise('100001', D('123.22'), card)
+
     def test_pre_request_creates_txn_model(self):
         self.facade.gateway._fetch_response_xml = Mock(return_value=SAMPLE_RESPONSE)
         card = Bankcard('1000350000000007', '10/13', ccv='345')
