@@ -34,4 +34,4 @@ class OrderTransaction(models.Model):
         super(OrderTransaction, self).save(*args, **kwargs)
 
     def __unicode__(self):
-        return u'Datacash txn %s for order %s' % (self.datacash_ref, self.order_number)
+        return u'Datacash txn %s for order %s' % (self.datacash_reference, self.order_number)
