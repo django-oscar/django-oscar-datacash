@@ -14,6 +14,7 @@ from oscar.apps.payment.exceptions import UnableToTakePayment, InvalidGatewayReq
 from datacash.models import OrderTransaction
 from datacash.gateway import Gateway, Response
 from datacash.facade import Facade
+from datacash import DATACASH
 
 SAMPLE_REQUEST = """<?xml version="1.0" encoding="UTF-8" ?>
 <Request>
@@ -427,6 +428,12 @@ class DeclinedResponseTests(TestCase):
 
     def test_is_declined(self):
         self.assertTrue(self.response.is_declined())
+
+
+class MiscTests(TestCase):
+
+    def test_constant_exist(self):
+        self.assertEqual('Datacash', DATACASH)
 
 
 @skipUnless(getattr(settings, 'DATACASH_ENABLE_INTEGRATION_TESTS', False), "Currently disabled")
