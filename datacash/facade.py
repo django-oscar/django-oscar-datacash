@@ -56,29 +56,45 @@ class Facade(object):
     def generate_merchant_reference(self, order_number):
         return '%s_%s' % (order_number, datetime.datetime.now().microsecond)
 
+    def extract_address_data(self, address):
+        data = {}
+        if not address:
+            return data
+        for i in range(1, 5):
+            key = 'line%d' % i
+            if hasattr(address, key):
+                data['address_line%d' % i] = getattr(address, key)
+        data['postcode'] = address.postcode
+        return data
+
     # ========================
     # API - 2 stage processing
     # ========================
 
-    def pre_authorise(self, order_number, amount, bankcard=None, txn_reference=None):
+    def pre_authorise(self, order_number, amount, bankcard=None,
+                      txn_reference=None, billing_address=None):
         """
         Ring-fence an amount of money from the given card.  This is the first stage
         of a two-stage payment process.  A further call to fulfill is required to 
         debit the money.
         """
         merchant_ref = self.generate_merchant_reference(order_number)
+        address_data = self.extract_address_data(billing_address)
         if bankcard:
             response = self.gateway.pre(card_number=bankcard.card_number,
                                         expiry_date=bankcard.expiry_date,
                                         amount=amount,
                                         currency=self.currency,
                                         merchant_reference=self.generate_merchant_reference(order_number),
-                                        ccv=bankcard.ccv)
+                                        ccv=bankcard.ccv,
+                                        **address_data
+                                        )
         elif txn_reference:
             response = self.gateway.pre(amount=amount,
                                         currency=self.currency,
                                         merchant_reference=merchant_ref,
-                                        previous_txn_reference=txn_reference)
+                                        previous_txn_reference=txn_reference,
+                                        **address_data)
         else:
             raise ValueError("You must specify either a bankcard or a previous txn reference")
         return self.handle_response(gateway.PRE, order_number, amount, response)
@@ -113,7 +129,8 @@ class Facade(object):
     # API - 1 stage processing
     # ========================
 
-    def authorise(self, order_number, amount, bankcard=None, txn_reference=None):
+    def authorise(self, order_number, amount, bankcard=None, txn_reference=None,
+                  billing_address=None):
         """
         Debit a bankcard for the given amount
 
@@ -121,18 +138,21 @@ class Facade(object):
         you are using a new or existing bankcard.
         """
         merchant_ref = self.generate_merchant_reference(order_number)
+        address_data = self.extract_address_data(billing_address)
         if bankcard:
             response = self.gateway.auth(card_number=bankcard.card_number,
                                          expiry_date=bankcard.expiry_date,
                                          amount=amount,
                                          currency=self.currency,
                                          merchant_reference=merchant_ref,
-                                         ccv=bankcard.ccv)
+                                         ccv=bankcard.ccv,
+                                         **address_data)
         elif txn_reference:
             response = self.gateway.auth(amount=amount,
                                          currency=self.currency,
                                          merchant_reference=merchant_ref,
-                                         previous_txn_reference=txn_reference)
+                                         previous_txn_reference=txn_reference,
+                                         **address_data)
         else:
             raise ValueError("You must specify either a bankcard or a previous txn reference")
 

@@ -176,7 +176,7 @@ class Gateway(object):
         for n in range(1, 5):
             key = 'address_line%d' % n
             if key in kwargs:
-                self._create_element(doc, cv2avs, 'street_address%n' % n, kwargs[key])
+                self._create_element(doc, cv2avs, 'street_address%d' % n, kwargs[key])
         if 'postcode' in kwargs:
             self._create_element(doc, cv2avs, 'postcode', kwargs['postcode'])
         if 'ccv' in kwargs:

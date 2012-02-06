@@ -55,6 +55,12 @@ SAMPLE_RESPONSE = """<?xml version="1.0" encoding="UTF-8" ?>
 </Response>"""
 
 
+class MockBillingAddress(object):
+    def __init__(self, **kwargs):
+        for k, v in kwargs.items():
+            setattr(self, k, v)
+
+
 class XmlTestingMixin(object):
 
     def assertXmlElementEquals(self, xml_str, value, element_path):
@@ -105,6 +111,41 @@ class FacadeTests(TestCase, XmlTestingMixin):
         self.assertEquals(D('123.22'), txn.amount)
         self.assertTrue(len(txn.request_xml) > 0)
         self.assertTrue(len(txn.response_xml) > 0)
+
+    def test_pre_request_uses_billing_address_fields(self):
+        mock = Mock(return_value=SAMPLE_RESPONSE)
+        self.facade.gateway._fetch_response_xml = mock
+        card = Bankcard('1000350000000007', '10/13', ccv='345')
+        address = MockBillingAddress(line1='1 Egg Street',
+                                     line2='Farmville',
+                                     line4='Greater London',
+                                     postcode='N1 8RT')
+        self.facade.pre_authorise('100001', D('123.22'), card,
+                                  billing_address=address)
+        request_xml = mock.call_args[0][0]
+        self.assertXmlElementEquals(request_xml, '1 Egg Street', 
+                                    'Request.Transaction.CardTxn.Card.Cv2Avs.street_address1')
+        self.assertXmlElementEquals(request_xml, 'Farmville', 
+                                    'Request.Transaction.CardTxn.Card.Cv2Avs.street_address2')
+        self.assertXmlElementEquals(request_xml, 'N1 8RT', 
+                                    'Request.Transaction.CardTxn.Card.Cv2Avs.postcode')
+
+    def test_auth_request_uses_billing_address_fields(self):
+        mock = Mock(return_value=SAMPLE_RESPONSE)
+        self.facade.gateway._fetch_response_xml = mock
+        card = Bankcard('1000350000000007', '10/13', ccv='345')
+        address = MockBillingAddress(line1='1 Egg Street',
+                                     line2='Farmville',
+                                     line4='Greater London',
+                                     postcode='N1 8RT')
+        self.facade.authorise('100001', D('123.22'), card, billing_address=address)
+        request_xml = mock.call_args[0][0]
+        self.assertXmlElementEquals(request_xml, '1 Egg Street', 
+                                    'Request.Transaction.CardTxn.Card.Cv2Avs.street_address1')
+        self.assertXmlElementEquals(request_xml, 'Farmville', 
+                                    'Request.Transaction.CardTxn.Card.Cv2Avs.street_address2')
+        self.assertXmlElementEquals(request_xml, 'N1 8RT', 
+                                    'Request.Transaction.CardTxn.Card.Cv2Avs.postcode')
 
     def test_auth_request_returns_datacash_ref(self):
         self.facade.gateway._fetch_response_xml = Mock(return_value=SAMPLE_RESPONSE)
