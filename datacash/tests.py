@@ -14,7 +14,6 @@ from oscar.apps.payment.exceptions import UnableToTakePayment, InvalidGatewayReq
 from datacash.models import OrderTransaction
 from datacash.gateway import Gateway, Response
 from datacash.facade import Facade
-from datacash import DATACASH
 
 SAMPLE_REQUEST = """<?xml version="1.0" encoding="UTF-8" ?>
 <Request>
@@ -197,6 +196,28 @@ class FacadeTests(TestCase, XmlTestingMixin):
         txn = OrderTransaction.objects.filter(order_number='100005')[0]
         self.assertEquals('refund', txn.method)
 
+    def test_pre_auth_using_history_txn(self):
+        self.facade.gateway._fetch_response_xml = Mock(return_value=SAMPLE_RESPONSE)
+        ref = self.facade.pre_authorise('100001', D('123.22'), txn_reference='3000000088888888')
+        self.assertEquals('3000000088888888', ref)
+
+    def test_refund_using_historic_txn(self):
+        self.facade.gateway._fetch_response_xml = Mock(return_value=SAMPLE_RESPONSE)
+        ref = self.facade.refund('100001', D('123.22'), txn_reference='3000000088888888')
+        self.assertEquals('3000000088888888', ref)
+
+    def test_refund_without_source_raises_exception(self):
+        with self.assertRaises(ValueError):
+            ref = self.facade.refund('100001', D('123.22'))
+
+    def test_pre_auth_without_source_raises_exception(self):
+        with self.assertRaises(ValueError):
+            ref = self.facade.pre_authorise('100001', D('123.22'))
+
+    def test_auth_without_source_raises_exception(self):
+        with self.assertRaises(ValueError):
+            ref = self.facade.authorise('100001', D('123.22'))
+
     def test_successful_cancel_request(self):
         response_xml = """<?xml version="1.0" encoding="UTF-8"?>
 <Response> 
@@ -281,6 +302,18 @@ class FacadeTests(TestCase, XmlTestingMixin):
 
 
 class TransactionModelTests(TestCase, XmlTestingMixin):
+
+    def test_unicode_method(self):
+        txn = OrderTransaction.objects.create(order_number='1000',
+                                              method='auth',
+                                              datacash_reference='3000000088888888',
+                                              merchant_reference='1000001',
+                                              amount=D('95.99'),
+                                              status=1,
+                                              reason='ACCEPTED',
+                                              request_xml=SAMPLE_CV2AVS_REQUEST,
+                                              response_xml=SAMPLE_RESPONSE)
+        self.assertTrue('Datacash txn ' in  str(txn))
 
     def test_ccv_numbers_are_not_saved_in_xml(self):
         txn = OrderTransaction.objects.create(order_number='1000',
@@ -404,9 +437,18 @@ class GatewayWithoutCV2AVSMockTests(TestCase, XmlTestingMixin):
         response = self.gateway_auth(start_date='10/10')
         self.assertXmlElementEquals(response.request_xml, '10/10', 'Request.Transaction.CardTxn.Card.startdate')
 
+    def test_auth_code_is_included_in_request_xml(self):
+        response = self.gateway_auth(auth_code='11122')
+        self.assertXmlElementEquals(response.request_xml, '11122',
+                                    'Request.Transaction.CardTxn.Card.authcode')
+
     def test_issue_number_is_included_in_request_xml(self):
         response = self.gateway_auth(issue_number='01')
         self.assertXmlElementEquals(response.request_xml, '01', 'Request.Transaction.CardTxn.Card.issuenumber')
+
+    def test_issue_number_is_validated_for_format(self):
+        with self.assertRaises(ValueError):
+            self.gateway_auth(issue_number='A')
 
     def test_dates_are_validated_for_format(self):
         with self.assertRaises(ValueError):
@@ -459,6 +501,25 @@ class GatewayWithoutCV2AVSMockTests(TestCase, XmlTestingMixin):
                                     previous_txn_reference='4500203021916406')
         self.assertXmlElementEquals(response.request_xml, 
             '4500203021916406', 'Request.Transaction.CardTxn.card_details')
+
+
+class GatewayErrorTests(TestCase):
+
+    def test_exception_raised_with_bad_host(self):
+        with self.assertRaises(RuntimeError):
+            Gateway('http://test.datacash.com', client='', password='')
+
+
+class ResponseTests(TestCase):
+
+    def test_str_version_is_response_xml(self):
+        response_xml = '<?xml version="1.0" ?><Response />'
+        r = Response('', response_xml)
+        self.assertEqual(response_xml, str(r))
+
+    def test_none_is_returned_for_missing_status(self):
+        r = Response('', '<?xml version="1.0" ?><Response />')
+        self.assertIsNone(r.status)
 
 
 class SuccessfulResponseTests(TestCase):
@@ -519,6 +580,7 @@ class DeclinedResponseTests(TestCase):
 class MiscTests(TestCase):
 
     def test_constant_exist(self):
+        from datacash import DATACASH
         self.assertEqual('Datacash', DATACASH)
 
 

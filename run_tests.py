@@ -50,8 +50,7 @@ def run_tests(*test_args):
     # Run tests
     test_runner = DjangoTestSuiteRunner(verbosity=2)
 
-    c = coverage()
-    c.exclude(r'tests')
+    c = coverage(source=['datacash'], omit=['*migrations*', '*tests*'])
     c.start()
     num_failures = test_runner.run_tests(test_args)
     c.stop()
