@@ -23,8 +23,7 @@ class Facade(object):
         self.currency = settings.DATACASH_CURRENCY
 
     def handle_response(self, method, order_number, amount, response):
-        with transaction.commit_on_success():
-            self.record_txn(method, order_number, amount, response)
+        self.record_txn(method, order_number, amount, response)
         # A response is either successful, declined or an error
         if response.is_successful():
             return response['datacash_reference']
