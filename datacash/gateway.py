@@ -4,15 +4,17 @@ import httplib
 import urllib
 import re
 from collections import Mapping
+import logging
 
 from django.conf import settings
 from django.db import transaction
 from django.utils.translation import ugettext_lazy as _
 from django.core.mail import mail_admins
-
 from oscar.apps.payment.exceptions import TransactionDeclined, GatewayError, InvalidGatewayRequestError
 
 from datacash.models import OrderTransaction
+
+logger = logging.getLogger('datacash')
 
 # Methods
 AUTH = 'auth'
@@ -163,8 +165,14 @@ class Gateway(object):
         return doc.toxml()
         
     def _do_request(self, method, **kwargs):
+        amount = kwargs.get('amount', '')
+        merchant_ref = kwargs.get('merchant_reference', '')
+        logger.info("Performing %s request - amount: %s, merchant_ref: %s" % (method, amount, merchant_ref))
+        
         request_xml = self._build_request_xml(method, **kwargs)
         response_xml = self._fetch_response_xml(request_xml)
+        logger.debug("Received response:\n %s" % response_xml)
+
         return Response(request_xml, response_xml)
 
     def _add_cv2avs_elements(self, doc, card, kwargs):
