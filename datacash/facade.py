@@ -51,7 +51,12 @@ class Facade(object):
         return 'The transaction was declined by your bank - please check your bankcard details and try again'
 
     def get_friendly_error_message(self, response):
-        return 'An error occurred when communicating with the payment gateway.'
+        # TODO: expand this dict to handle the most common errors
+        errors = {
+            19: 'Unable to fulfill transaction',
+        }
+        default_msg =  'An error occurred when communicating with the payment gateway.'
+        return errors.get(response.status, default_msg)
         
     def generate_merchant_reference(self, order_number):
         return '%s_%s' % (order_number, datetime.datetime.now().microsecond)
