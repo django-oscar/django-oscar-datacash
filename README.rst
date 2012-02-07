@@ -58,8 +58,9 @@ integration might look like::
     
     from oscar.apps.checkout.views import PaymentDetails as OscarPaymentDetails
     from oscar.apps.payment.utils import Bankcard
-    from oscar.apps.checkout.forms import BankcardForm
+    from oscar.apps.payment.forms import BankcardForm
     from datacash.facade import Facade
+    from datacash import DATACASH
 
     ...
 
@@ -93,7 +94,7 @@ integration might look like::
             # Request was successful - record the "payment source".  As this 
             # request was a 'pre-auth', we set the 'amount_allocated' - if we had
             # performed an 'auth' request, then we woudl set 'amount_debited'.
-            source_type,_ = SourceType.objects.get_or_create(name='Datacash')
+            source_type,_ = SourceType.objects.get_or_create(name=DATACASH)
             source = Source(source_type=source_type,
                             currency=settings.DATACASH_CURRENCY,
                             amount_allocated=total,
@@ -104,6 +105,10 @@ Oscar's view will handle the various exceptions that can get raised.  See `DataC
 for further details on the various processing models that are available.
 
 .. _`DataCash's documentation`: http://www.datacash.com/gettingproducts.php?id=Bank-Card-Processing-
+
+Oscar also has a billing address form that can be used to collect billing address information
+to submit to DataCash.  This is only required if your merchant account has Cv2Avs enabled. 
+
 
 Packages structure
 ==================
