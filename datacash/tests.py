@@ -38,6 +38,38 @@ SAMPLE_REQUEST = """<?xml version="1.0" encoding="UTF-8" ?>
     </Transaction>
 </Request>"""
 
+SAMPLE_CV2AVS_REQUEST = """<?xml version="1.0" ?>
+<Request>
+    <Authentication>
+        <client>99001381</client>
+        <password>hbANDMzErH</password>
+    </Authentication>
+    <Transaction>
+        <CardTxn>
+            <method>pre</method>
+            <Card>
+                <pan>XXXXXXXXXXXX0007</pan>
+                <expirydate>02/12</expirydate>
+                <Cv2Avs>
+                    <street_address1>1
+                    house</street_address1>
+                    <street_address2/>
+                    <street_address3/>
+                    <street_address4/>
+                    <postcode>n12
+                    9et</postcode>
+                    <cv2>123</cv2>
+                </Cv2Avs>
+            </Card>
+        </CardTxn>
+        <TxnDetails>
+            <merchantreference>100024_182223</merchantreference>
+            <amount currency="GBP">35.21</amount>
+            <capturemethod>ecomm</capturemethod>
+        </TxnDetails>
+    </Transaction>
+</Request>"""
+
 SAMPLE_RESPONSE = """<?xml version="1.0" encoding="UTF-8" ?>
 <Response>
     <CardTxn>
@@ -249,6 +281,19 @@ class FacadeTests(TestCase, XmlTestingMixin):
 
 
 class TransactionModelTests(TestCase, XmlTestingMixin):
+
+    def test_ccv_numbers_are_not_saved_in_xml(self):
+        txn = OrderTransaction.objects.create(order_number='1000',
+                                              method='auth',
+                                              datacash_reference='3000000088888888',
+                                              merchant_reference='1000001',
+                                              amount=D('95.99'),
+                                              status=1,
+                                              reason='ACCEPTED',
+                                              request_xml=SAMPLE_CV2AVS_REQUEST,
+                                              response_xml=SAMPLE_RESPONSE)
+        self.assertXmlElementEquals(txn.request_xml, 'XXX',
+                                    'Request.Transaction.CardTxn.Card.Cv2Avs.cv2')
     
     def test_cc_numbers_are_not_saved_in_xml(self):
         txn = OrderTransaction.objects.create(order_number='1000',

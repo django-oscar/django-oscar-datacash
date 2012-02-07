@@ -4,3 +4,5 @@
 *.swp
 integration.py
 dist/
+.coverage
+htmlcov/*

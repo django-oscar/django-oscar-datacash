@@ -29,8 +29,10 @@ class OrderTransaction(models.Model):
     def save(self, *args, **kwargs):
         # Ensure sensitive data isn't saved
         if not self.pk:
-            reg_ex = re.compile(r'\d{12}')
-            self.request_xml = reg_ex.sub('XXXXXXXXXXXX', self.request_xml)
+            cc_regex = re.compile(r'\d{12}')
+            self.request_xml = cc_regex.sub('XXXXXXXXXXXX', self.request_xml)
+            ccv_regex = re.compile(r'<cv2>\d+</cv2>')
+            self.request_xml = ccv_regex.sub('<cv2>XXX</cv2>', self.request_xml)
         super(OrderTransaction, self).save(*args, **kwargs)
 
     def __unicode__(self):
