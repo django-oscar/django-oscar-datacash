@@ -144,10 +144,11 @@ class Gateway(object):
             elif 'previous_txn_reference' in kwargs:
                 self._create_element(doc, card_txn, 'card_details', kwargs['previous_txn_reference'],
                                      attributes={'type': 'preregistered'})
-            
         
         # HistoricTxn
+        is_historic = False
         if 'txn_reference' in kwargs:
+            is_historic = True
             historic_txn = self._create_element(doc, txn, 'HistoricTxn')
             self._create_element(doc, historic_txn, 'reference', kwargs['txn_reference'])
             self._create_element(doc, historic_txn, 'method', method_name)
@@ -159,7 +160,10 @@ class Gateway(object):
         if 'merchant_reference' in kwargs:
             self._create_element(doc, txn_details, 'merchantreference', kwargs['merchant_reference'])
         if 'amount' in kwargs:
-            self._create_element(doc, txn_details, 'amount', str(kwargs['amount']), {'currency': kwargs['currency']})
+            if is_historic:
+                self._create_element(doc, txn_details, 'amount', str(kwargs['amount']))
+            else:
+                self._create_element(doc, txn_details, 'amount', str(kwargs['amount']), {'currency': kwargs['currency']})
         self._create_element(doc, txn_details, 'capturemethod', self._capturemethod)
         
         return doc.toxml()

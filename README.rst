@@ -189,3 +189,10 @@ then install the testing dependencies::
 The test suite can then be run using::
 
     ./run_tests.py
+
+Changelog
+=========
+
+0.2.1 / 2012-02-14
+------------------
+* Fixed issue with submitting currency attribute for historic transactions

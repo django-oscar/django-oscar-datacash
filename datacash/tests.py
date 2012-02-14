@@ -178,6 +178,14 @@ class FacadeTests(TestCase, XmlTestingMixin):
         self.assertXmlElementEquals(request_xml, 'N1 8RT', 
                                     'Request.Transaction.CardTxn.Card.Cv2Avs.postcode')
 
+    def test_refund_request_doesnt_include_currency_attribute(self):
+        mock = Mock(return_value=SAMPLE_RESPONSE)
+        self.facade.gateway._fetch_response_xml = mock
+        self.facade.refund_transaction('100001', D('123.22'),
+                                       txn_reference='12345')
+        request_xml = mock.call_args[0][0]
+        self.assertTrue('currency' not in request_xml)
+
     def test_auth_request_returns_datacash_ref(self):
         self.facade.gateway._fetch_response_xml = Mock(return_value=SAMPLE_RESPONSE)
         card = Bankcard('1000350000000007', '10/13', ccv='345')
