@@ -9,4 +9,5 @@ git tag | grep $RELEASE_NUM > /dev/null && \
 
 # Tag in Git
 git tag $RELEASE_NUM -m "Tagging release $RELEASE_NUM"
+git push origin master
 git push --tags
