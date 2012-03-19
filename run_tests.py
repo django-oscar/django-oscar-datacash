@@ -11,7 +11,13 @@ if not settings.configured:
     try:
         from integration import *
     except ImportError:
-        pass
+        datacash_settings.update({
+            'DATACASH_HOST': 'testserver.datacash.com',
+            'DATACASH_CLIENT': '',
+            'DATACASH_PASSWORD': '',
+            'DATACASH_CURRENCY': 'GBP',
+            'DATACASH_USE_CV2AVS': True,
+        })
     else:
         for key, value in locals().items():
             if key.startswith('DATACASH'):
