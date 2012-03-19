@@ -8,6 +8,12 @@ using oscar.
 
 .. _`django-oscar`: https://github.com/tangentlabs/django-oscar
 
+View the `continuous integration status`_.
+
+.. _`continuous integration status`: http://travis-ci.org/#!/tangentlabs/django-oscar-datacash
+
+.. image:: https://secure.travis-ci.org/tangentlabs/django-oscar-datacash.png
+
 Getting started
 ===============
 
