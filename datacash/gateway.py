@@ -1,18 +1,9 @@
-import datetime
 from xml.dom.minidom import Document, parseString
 import httplib
-import urllib
 import re
-from collections import Mapping
 import logging
 
-from django.conf import settings
-from django.db import transaction
-from django.utils.translation import ugettext_lazy as _
-from django.core.mail import mail_admins
-from oscar.apps.payment.exceptions import TransactionDeclined, GatewayError, InvalidGatewayRequestError
-
-from datacash.models import OrderTransaction
+from oscar.apps.payment.exceptions import GatewayError
 
 logger = logging.getLogger('datacash')
 

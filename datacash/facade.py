@@ -1,6 +1,5 @@
 import datetime
 
-from django.db import transaction
 from django.conf import settings
 from oscar.apps.payment.exceptions import UnableToTakePayment, InvalidGatewayRequestError
 
@@ -35,16 +34,16 @@ class Facade(object):
             raise InvalidGatewayRequestError(msg)
 
     def record_txn(self, method, order_number, amount, response):
-        txn = OrderTransaction.objects.create(order_number=order_number,
-                                              method=method,
-                                              datacash_reference=response['datacash_reference'],
-                                              merchant_reference=response['merchant_reference'],
-                                              amount=amount,
-                                              auth_code=response['auth_code'],
-                                              status=response.status,
-                                              reason=response['reason'],
-                                              request_xml=response.request_xml,
-                                              response_xml=response.response_xml)
+        OrderTransaction.objects.create(order_number=order_number,
+                                        method=method,
+                                        datacash_reference=response['datacash_reference'],
+                                        merchant_reference=response['merchant_reference'],
+                                        amount=amount,
+                                        auth_code=response['auth_code'],
+                                        status=response.status,
+                                        reason=response['reason'],
+                                        request_xml=response.request_xml,
+                                        response_xml=response.response_xml)
 
     def get_friendly_decline_message(self, response):
         return 'The transaction was declined by your bank - please check your bankcard details and try again'
