@@ -199,6 +199,15 @@ The test suite can then be run using::
 Changelog
 =========
 
-0.2.1 / 2012-02-14
+0.2.3 / 2012-05-09
+------------------
+* Added admin.py
+* Added travis.ci support
+
+0.2.2 / 2012-02-14
+------------------
+* Fixed bug with currency in refund transactions
+
+0.2.1 / 2012-02-7
 ------------------
 * Fixed issue with submitting currency attribute for historic transactions
