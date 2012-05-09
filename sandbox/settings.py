@@ -223,3 +223,10 @@ HAYSTACK_SITECONF = 'oscar.search_sites'
 HAYSTACK_SEARCH_ENGINE = 'dummy'
 
 OSCAR_SHOP_TAGLINE = 'Datacash sandbox'
+
+# Datacash settings
+
+try:
+    from integration import *
+except ImportError:
+    pass

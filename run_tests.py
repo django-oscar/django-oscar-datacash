@@ -1,10 +1,10 @@
 #!/usr/bin/env python
 import sys
-import os
 from coverage import coverage
 from optparse import OptionParser
 
-from django.conf import settings, global_settings
+from django.conf import settings
+
 
 if not settings.configured:
     datacash_settings = {}
@@ -22,6 +22,7 @@ if not settings.configured:
         for key, value in locals().items():
             if key.startswith('DATACASH'):
                 datacash_settings[key] = value
+                
     settings.configure(
             DATABASES={
                 'default': {
@@ -42,7 +43,8 @@ if not settings.configured:
             **datacash_settings
         )
 
-from django.test.simple import DjangoTestSuiteRunner
+# Needs to be here to avoid missing SETTINGS env var
+from django_nose import NoseTestSuiteRunner
 
 
 def run_tests(*test_args):
@@ -51,10 +53,10 @@ def run_tests(*test_args):
         patch_for_test_db_setup()
 
     if not test_args:
-        test_args = ['datacash']
+        test_args = ['tests']
 
     # Run tests
-    test_runner = DjangoTestSuiteRunner(verbosity=2)
+    test_runner = NoseTestSuiteRunner(verbosity=2)
 
     c = coverage(source=['datacash'], omit=['*migrations*', '*tests*'])
     c.start()
@@ -65,6 +67,7 @@ def run_tests(*test_args):
         sys.exit(num_failures)
     print "Generating HTML coverage report"
     c.html_report()
+
 
 def generate_migration():
     from south.management.commands.schemamigration import Command

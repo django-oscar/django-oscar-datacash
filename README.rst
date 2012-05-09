@@ -62,7 +62,7 @@ integration might look like::
     # myshop.checkout.views
     from django.conf import settings
     
-    from oscar.apps.checkout.views import PaymentDetails as OscarPaymentDetails
+    from oscar.apps.checkout.views import PaymentDetailsView as OscarPaymentDetailsView
     from oscar.apps.payment.utils import Bankcard
     from oscar.apps.payment.forms import BankcardForm
     from datacash.facade import Facade
@@ -70,7 +70,7 @@ integration might look like::
 
     ...
 
-    class PaymentDetailsView(OscarPaymentDetails):
+    class PaymentDetailsView(OscarPaymentDetailsView):
 
         def get_context_data(self):
             ...
