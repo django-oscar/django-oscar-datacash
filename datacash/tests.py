@@ -1,6 +1,5 @@
 from decimal import Decimal as D
 from xml.dom.minidom import parseString
-import datetime
 import math
 import time
 from mock import Mock
@@ -120,7 +119,7 @@ class FacadeTests(TestCase, XmlTestingMixin):
 
     def test_auth_request_creates_txn_model(self):
         self.facade.gateway._fetch_response_xml = Mock(return_value=SAMPLE_RESPONSE)
-        card = Bankcard('1000350000000007', '10/13', ccv='345')
+        card = Bankcard('1000350000000007', '10/13', cvv='345')
         self.facade.authorise('100001', D('123.22'), card)
         txn = OrderTransaction.objects.filter(order_number='100001')[0]
         self.assertEquals('auth', txn.method)
@@ -128,14 +127,14 @@ class FacadeTests(TestCase, XmlTestingMixin):
         self.assertTrue(len(txn.request_xml) > 0)
         self.assertTrue(len(txn.response_xml) > 0)
 
-    def test_auth_request_with_integer_ccv(self):
+    def test_auth_request_with_integer_cvv(self):
         self.facade.gateway._fetch_response_xml = Mock(return_value=SAMPLE_RESPONSE)
-        card = Bankcard('1000350000000007', '10/13', ccv=345)
+        card = Bankcard('1000350000000007', '10/13', cvv=345)
         self.facade.authorise('100001', D('123.22'), card)
 
     def test_pre_request_creates_txn_model(self):
         self.facade.gateway._fetch_response_xml = Mock(return_value=SAMPLE_RESPONSE)
-        card = Bankcard('1000350000000007', '10/13', ccv='345')
+        card = Bankcard('1000350000000007', '10/13', cvv='345')
         self.facade.pre_authorise('100001', D('123.22'), card)
         txn = OrderTransaction.objects.filter(order_number='100001')[0]
         self.assertEquals('pre', txn.method)
@@ -146,7 +145,7 @@ class FacadeTests(TestCase, XmlTestingMixin):
     def test_pre_request_uses_billing_address_fields(self):
         mock = Mock(return_value=SAMPLE_RESPONSE)
         self.facade.gateway._fetch_response_xml = mock
-        card = Bankcard('1000350000000007', '10/13', ccv='345')
+        card = Bankcard('1000350000000007', '10/13', cvv='345')
         address = MockBillingAddress(line1='1 Egg Street',
                                      line2='Farmville',
                                      line4='Greater London',
@@ -164,7 +163,7 @@ class FacadeTests(TestCase, XmlTestingMixin):
     def test_auth_request_uses_billing_address_fields(self):
         mock = Mock(return_value=SAMPLE_RESPONSE)
         self.facade.gateway._fetch_response_xml = mock
-        card = Bankcard('1000350000000007', '10/13', ccv='345')
+        card = Bankcard('1000350000000007', '10/13', cvv='345')
         address = MockBillingAddress(line1='1 Egg Street',
                                      line2='Farmville',
                                      line4='Greater London',
@@ -188,7 +187,7 @@ class FacadeTests(TestCase, XmlTestingMixin):
 
     def test_auth_request_returns_datacash_ref(self):
         self.facade.gateway._fetch_response_xml = Mock(return_value=SAMPLE_RESPONSE)
-        card = Bankcard('1000350000000007', '10/13', ccv='345')
+        card = Bankcard('1000350000000007', '10/13', cvv='345')
         ref = self.facade.authorise('100001', D('123.22'), card)
         self.assertEquals('3000000088888888', ref)
 
@@ -199,7 +198,7 @@ class FacadeTests(TestCase, XmlTestingMixin):
 
     def test_refund_request(self):
         self.facade.gateway._fetch_response_xml = Mock(return_value=SAMPLE_RESPONSE)
-        card = Bankcard('1000350000000007', '10/13', ccv='345')
+        card = Bankcard('1000350000000007', '10/13', cvv='345')
         ref = self.facade.refund('100005', D('123.22'), card)
         txn = OrderTransaction.objects.filter(order_number='100005')[0]
         self.assertEquals('refund', txn.method)
@@ -289,7 +288,7 @@ class FacadeTests(TestCase, XmlTestingMixin):
     <time>1169223906</time>
 </Response>"""
         self.facade.gateway._fetch_response_xml = Mock(return_value=response_xml)
-        card = Bankcard('1000350000000007', '10/13', ccv='345')
+        card = Bankcard('1000350000000007', '10/13', cvv='345')
         with self.assertRaises(UnableToTakePayment):
             self.facade.pre_authorise('100001', D('123.22'), card)
 
@@ -304,7 +303,7 @@ class FacadeTests(TestCase, XmlTestingMixin):
     <time>1074692433</time>
 </Response>"""
         self.facade.gateway._fetch_response_xml = Mock(return_value=response_xml)
-        card = Bankcard('1000350000000007', '10/13', ccv='345')
+        card = Bankcard('1000350000000007', '10/13', cvv='345')
         with self.assertRaises(InvalidGatewayRequestError):
             self.facade.pre_authorise('100001', D('123.22'), card)
 
@@ -323,7 +322,7 @@ class TransactionModelTests(TestCase, XmlTestingMixin):
                                               response_xml=SAMPLE_RESPONSE)
         self.assertTrue('Datacash txn ' in  str(txn))
 
-    def test_ccv_numbers_are_not_saved_in_xml(self):
+    def test_cvv_numbers_are_not_saved_in_xml(self):
         txn = OrderTransaction.objects.create(order_number='1000',
                                               method='auth',
                                               datacash_reference='3000000088888888',
@@ -365,8 +364,8 @@ class GatewayWithCV2AVSMockTests(TestCase, XmlTestingMixin):
                                      **kwargs)
         return response
 
-    def test_ccv_is_included_in_request(self):
-        response = self.gateway_auth(ccv='456')
+    def test_cvv_is_included_in_request(self):
+        response = self.gateway_auth(cvv='456')
         self.assertXmlElementEquals(response.request_xml, '456', 'Request.Transaction.CardTxn.Card.Cv2Avs.cv2')
 
     def test_capture_method_defaults_to_ecomm(self):

@@ -182,8 +182,8 @@ class Gateway(object):
                 self._create_element(doc, cv2avs, 'street_address%d' % n, kwargs[key])
         if 'postcode' in kwargs:
             self._create_element(doc, cv2avs, 'postcode', kwargs['postcode'])
-        if 'ccv' in kwargs:
-            self._create_element(doc, cv2avs, 'cv2', kwargs['ccv'])
+        if 'cvv' in kwargs:
+            self._create_element(doc, cv2avs, 'cv2', kwargs['cvv'])
 
     def _create_element(self, doc, parent, tag, value=None, attributes=None):
         """
