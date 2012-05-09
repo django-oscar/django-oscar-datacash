@@ -3,7 +3,7 @@ import httplib
 import re
 import logging
 
-from oscar.apps.payment.exceptions import GatewayError
+from oscar.apps.payment.exceptions import GatewayError 
 
 logger = logging.getLogger('datacash')
 
@@ -204,6 +204,8 @@ class Gateway(object):
                 raise ValueError('You must provide a "%s" argument' % key)
         for key in kwargs:
             value = kwargs[key]
+            if key == 'amount' and value == 0:
+                raise ValueError('Amount must be non-zero')
             if key in ('expiry_date', 'start_date') and not re.match(r'^\d{2}/\d{2}$', value):
                 raise ValueError("%s not in format dd/yy" % key)
             if key == 'issue_number' and not re.match(r'^\d{1,2}$', kwargs[key]):

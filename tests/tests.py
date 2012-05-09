@@ -8,7 +8,7 @@ from unittest import skipUnless
 from django.test import TestCase
 from django.conf import settings
 from oscar.apps.payment.utils import Bankcard
-from oscar.apps.payment.exceptions import UnableToTakePayment, InvalidGatewayRequestError
+from oscar.apps.payment.exceptions import UnableToTakePayment, InvalidGatewayRequestError, PaymentError
 
 from datacash.models import OrderTransaction
 from datacash.gateway import Gateway, Response
@@ -110,6 +110,16 @@ class FacadeTests(TestCase, XmlTestingMixin):
 
     def setUp(self):
         self.facade = Facade()
+
+    def test_zero_amount_for_pre_raises_exception(self):
+        card = Bankcard('1000350000000007', '10/13', cvv='345')
+        with self.assertRaises(UnableToTakePayment):
+            self.facade.pre_authorise('1234', D('0.00'), card)
+
+    def test_zero_amount_for_auth_raises_exception(self):
+        card = Bankcard('1000350000000007', '10/13', cvv='345')
+        with self.assertRaises(UnableToTakePayment):
+            self.facade.authorise('1234', D('0.00'), card)
 
     def test_mechant_refs_are_unique(self):
         order_num = '12345'
@@ -363,6 +373,10 @@ class GatewayWithCV2AVSMockTests(TestCase, XmlTestingMixin):
                                      merchant_reference=merchant_reference,
                                      **kwargs)
         return response
+
+    def test_zero_amount_raises_exception(self):
+        with self.assertRaises(ValueError):
+            self.gateway_auth(amount=D('0.00'))
 
     def test_cvv_is_included_in_request(self):
         response = self.gateway_auth(cvv='456')

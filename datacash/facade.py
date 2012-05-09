@@ -81,6 +81,8 @@ class Facade(object):
         of a two-stage payment process.  A further call to fulfill is required to 
         debit the money.
         """
+        if amount == 0:
+            raise UnableToTakePayment("Order amount must be non-zero")
         merchant_ref = self.generate_merchant_reference(order_number)
         address_data = self.extract_address_data(billing_address)
         if bankcard:
@@ -140,6 +142,9 @@ class Facade(object):
         A bankcard object or a txn_reference can be passed depending on whether
         you are using a new or existing bankcard.
         """
+        if amount == 0:
+            raise UnableToTakePayment("Order amount must be non-zero")
+
         merchant_ref = self.generate_merchant_reference(order_number)
         address_data = self.extract_address_data(billing_address)
         if bankcard:
