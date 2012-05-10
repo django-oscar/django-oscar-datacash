@@ -94,8 +94,8 @@ integration might look like::
                 ctx['bankcard_form'] = form
                 return self.render_to_response(ctx)
             
-            kwargs['bankcard'] = form.get_bankcard_obj()
-            super(PaymentDetailsView, self).post(request, *args, **kwargs)
+            bankcard = form.get_bankcard_obj()
+            return self.submit(request.basket, payment_kwargs={'bankcard': bankcard})
 
         def handle_payment(self, order_number, total, **kwargs):
             # Make request to DataCash - if there any problems (eg bankcard
@@ -113,6 +113,9 @@ integration might look like::
                             amount_allocated=total,
                             reference=datacash_ref)
             self.add_payment_source(source)
+
+            # Also record payment event
+            self.add_payment_event('pre-auth', total_incl_tax)
 
 Oscar's view will handle the various exceptions that can get raised.  See `DataCash's documentation`_
 for further details on the various processing models that are available.
@@ -212,6 +215,11 @@ Here's an example:
 
 Changelog
 =========
+
+0.3 / 2012-05-10
+----------------
+* Added sandbox site
+* Added dashboard view of transactions
 
 0.2.3 / 2012-05-09
 ------------------
