@@ -1,6 +1,14 @@
 import re
+from xml.dom.minidom import parseString
 
 from django.db import models
+
+
+def prettify_xml(xml_str):
+    xml_str = re.sub(r'\s*\n\s*', '', xml_str)
+    ugly = parseString(xml_str).toprettyxml(indent='    ')
+    regex = re.compile(r'>\n\s+([^<>\s].*?)\n\s+</', re.DOTALL)
+    return regex.sub('>\g<1></', ugly)
 
 
 class OrderTransaction(models.Model):
@@ -37,3 +45,12 @@ class OrderTransaction(models.Model):
 
     def __unicode__(self):
         return u'Datacash txn %s for order %s' % (self.datacash_reference, self.order_number)
+
+    @property
+    def pretty_request_xml(self):
+        return prettify_xml(self.request_xml)
+
+    @property
+    def pretty_response_xml(self):
+        return prettify_xml(self.response_xml)
+

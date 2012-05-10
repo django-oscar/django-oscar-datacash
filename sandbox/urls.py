@@ -7,10 +7,13 @@ from django.views.generic import TemplateView
 
 from apps.app import shop
 
+from datacash.app import application
+
 admin.autodiscover()
 
 urlpatterns = patterns('',
     (r'^admin/', include(admin.site.urls)),
+    (r'^dashboard/datacash/', include(application.urls)),
     (r'', include(shop.urls)),
 )
 if settings.DEBUG:

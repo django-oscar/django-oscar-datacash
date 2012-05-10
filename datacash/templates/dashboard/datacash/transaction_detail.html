@@ -1,0 +1,44 @@
+{% extends 'dashboard/layout.html' %}
+{% load currency_filters %}
+
+{% block title %}
+Datacash transaction {{ txn.datacash_reference }} | {{ block.super }}
+{% endblock %}
+
+{% block breadcrumbs %}
+<ul class="breadcrumb">
+    <li>
+        <a href="{% url dashboard:index %}">Dashboard</a>
+        <span class="divider">/</span>
+    </li>
+    <li>
+        <a href="{% url datacash-transaction-list %}">Datacash</a>
+        <span class="divider">/</span>
+    </li>
+	<li class="active"><a href=".">Transaction {{ txn.datacash_reference }}</a></li>
+</ul>
+{% endblock %}
+
+{% block dashboard_content %}
+
+<div class="sub-header">
+	<h2>Transaction {{ datacash_reference }}</h2>
+</div>
+
+<table class="table table-striped table-bordered">
+	<tbody>
+		<tr><th>Order number</th><td>{{ txn.order_number }}</td></tr>
+		<tr><th>Method</th><td>{{ txn.method }}</td></tr>
+		<tr><th>Amount</th><td>{{ txn.amount|currency }}</td></tr>
+		<tr><th>Merchant reference</th><td>{{ txn.merchant_reference }}</td></tr>
+		<tr><th>Datacash reference</th><td>{{ txn.datacash_reference }}</td></tr>
+		<tr><th>Auth code</th><td>{{ txn.auth_code|default:"-" }}</td></tr>
+		<tr><th>Status</th><td>{{ txn.status }}</td></tr>
+		<tr><th>Reason</th><td>{{ txn.reason }}</td></tr>
+		<tr><th>Request XML</th><td><pre>{{ txn.pretty_request_xml }}</pre></td></tr>
+		<tr><th>Response XML</th><td><pre>{{ txn.pretty_response_xml }}</pre></td></tr>
+		<tr><th>Date</th><td>{{ txn.date_created }}</td></tr>
+	</tbody>
+</table>
+
+{% endblock dashboard_content %}
