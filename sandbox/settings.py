@@ -144,7 +144,7 @@ LOGGING = {
         'datacash_file': {
              'level': 'DEBUG',
              'class': 'logging.FileHandler',
-             'filename': '/tmp/paypal.log',
+             'filename': '/tmp/datacash.log',
              'formatter': 'verbose'
         },
         'mail_admins': {

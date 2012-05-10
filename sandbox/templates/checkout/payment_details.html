@@ -2,7 +2,7 @@
 
 {% block payment_details_content %}
 
-<form action="{% url checkout:payment-details %}" class="form-stacked" method="POST">
+<form action="{% url checkout:preview %}" class="form-stacked" method="POST">
 	<table>
 		{% csrf_token %}
 		{{ bankcard_form.as_table }}

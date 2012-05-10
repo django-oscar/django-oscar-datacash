@@ -17,6 +17,13 @@ View the `continuous integration status`_.
 Getting started
 ===============
 
+Sandbox
+-------
+
+When following the below instructions, it may be helpful to browse the sandbox
+folder above as this is an example oscar install which has been integrated with
+datacash.
+
 Installation
 ------------
 
@@ -195,6 +202,13 @@ then install the testing dependencies::
 The test suite can then be run using::
 
     ./run_tests.py
+
+Magic card numbers are available on the Datacash site:
+https://testserver.datacash.com/software/download.cgi?show=magicnumbers
+
+Here's an example:
+
+    1000010000000007
 
 Changelog
 =========
