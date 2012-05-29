@@ -3,8 +3,8 @@ Datacash package for django-oscar
 =================================
 
 This package provides integration with the payment gateway, DataCash.  It is designed to
-integrate seamlessly with the e-commerce framework `django-oscar`_ but can be used without 
-using oscar.
+work seamlessly with the e-commerce framework `django-oscar`_ but can be used without 
+oscar.
 
 .. _`django-oscar`: https://github.com/tangentlabs/django-oscar
 
@@ -124,6 +124,18 @@ for further details on the various processing models that are available.
 
 Oscar also has a billing address form that can be used to collect billing address information
 to submit to DataCash.  This is only required if your merchant account has Cv2Avs enabled. 
+
+Integration trouble-shooting
+----------------------------
+
+Many Datacash features require your merchant account to be configured correctly.
+For instance, the default Datacash set-up won't include:
+
+* Payments using historic transactions 
+* Split settlements
+
+When investigating problems, make sure your Datacash account is set-up
+correctly.
 
 
 Packages structure
