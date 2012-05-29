@@ -44,7 +44,11 @@ class OrderTransaction(models.Model):
         super(OrderTransaction, self).save(*args, **kwargs)
 
     def __unicode__(self):
-        return u'Datacash txn %s for order %s' % (self.datacash_reference, self.order_number)
+        return u'%s txn for order %s - ref: %s, status: %s' % (
+            self.method.upper(), 
+            self.order_number,
+            self.datacash_reference, 
+            self.status)
 
     @property
     def pretty_request_xml(self):

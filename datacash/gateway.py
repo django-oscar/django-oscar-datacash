@@ -3,7 +3,7 @@ import httplib
 import re
 import logging
 
-from oscar.apps.payment.exceptions import GatewayError 
+from oscar.apps.payment.exceptions import GatewayError
 
 logger = logging.getLogger('datacash')
 
