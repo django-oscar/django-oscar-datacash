@@ -55,9 +55,6 @@ class Facade(object):
         }
         default_msg =  'An error occurred when communicating with the payment gateway.'
         return errors.get(response.status, default_msg)
-        
-    def generate_merchant_reference(self, order_number):
-        return '%s_%s' % (order_number, datetime.datetime.now().microsecond)
 
     def extract_address_data(self, address):
         data = {}
@@ -83,14 +80,14 @@ class Facade(object):
         """
         if amount == 0:
             raise UnableToTakePayment("Order amount must be non-zero")
-        merchant_ref = self.generate_merchant_reference(order_number)
+        merchant_ref = self.merchant_reference(order_number, gateway.PRE)
         address_data = self.extract_address_data(billing_address)
         if bankcard:
             response = self.gateway.pre(card_number=bankcard.card_number,
                                         expiry_date=bankcard.expiry_date,
                                         amount=amount,
                                         currency=self.currency,
-                                        merchant_reference=self.generate_merchant_reference(order_number),
+                                        merchant_reference=merchant_ref,
                                         ccv=bankcard.ccv,
                                         **address_data
                                         )
@@ -104,12 +101,21 @@ class Facade(object):
             raise ValueError("You must specify either a bankcard or a previous txn reference")
         return self.handle_response(gateway.PRE, order_number, amount, response)
 
+    def merchant_reference(self, order_number, method):
+        num_previous = OrderTransaction.objects.filter(order_number=order_number,
+                                                       method=method).count()
+        return u'%s_%s_%d' % (order_number, method.upper(), num_previous+1)
+
     def fulfill_transaction(self, order_number, amount, txn_reference, auth_code):
         """
         Settle a previously ring-fenced transaction
         """
+        # Split shipments require that fulfills after the first one must have a
+        # different merchant reference to the original
+        merchant_ref = self.merchant_reference(order_number, gateway.FULFILL)
         response = self.gateway.fulfill(amount=amount,
                                         currency=self.currency,
+                                        merchant_reference=merchant_ref,
                                         txn_reference=txn_reference,
                                         auth_code=auth_code)
         return self.handle_response(gateway.FULFILL, order_number, amount, response)
@@ -145,7 +151,7 @@ class Facade(object):
         if amount == 0:
             raise UnableToTakePayment("Order amount must be non-zero")
 
-        merchant_ref = self.generate_merchant_reference(order_number)
+        merchant_ref = self.merchant_reference(order_number, gateway.AUTH)
         address_data = self.extract_address_data(billing_address)
         if bankcard:
             response = self.gateway.auth(card_number=bankcard.card_number,
@@ -170,7 +176,7 @@ class Facade(object):
         """
         Return funds to a bankcard
         """
-        merchant_ref = self.generate_merchant_reference(order_number)
+        merchant_ref = self.merchant_reference(order_number, gateway.REFUND)
         if bankcard:
             response = self.gateway.refund(card_number=bankcard.card_number,
                                            expiry_date=bankcard.expiry_date,

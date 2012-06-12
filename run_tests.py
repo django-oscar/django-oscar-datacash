@@ -40,6 +40,7 @@ if not settings.configured:
                 ],
             DEBUG=False,
             SITE_ID=1,
+            NOSE_ARGS=['-s'],
             **datacash_settings
         )
 
@@ -56,7 +57,7 @@ def run_tests(*test_args):
         test_args = ['tests']
 
     # Run tests
-    test_runner = NoseTestSuiteRunner(verbosity=2)
+    test_runner = NoseTestSuiteRunner(verbosity=1)
 
     c = coverage(source=['datacash'], omit=['*migrations*', '*tests*'])
     c.start()

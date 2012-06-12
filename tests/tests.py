@@ -8,7 +8,7 @@ from unittest import skipUnless
 from django.test import TestCase
 from django.conf import settings
 from oscar.apps.payment.utils import Bankcard
-from oscar.apps.payment.exceptions import UnableToTakePayment, InvalidGatewayRequestError, PaymentError
+from oscar.apps.payment.exceptions import UnableToTakePayment, InvalidGatewayRequestError
 
 from datacash.models import OrderTransaction
 from datacash.gateway import Gateway, Response
@@ -84,6 +84,16 @@ SAMPLE_RESPONSE = """<?xml version="1.0" encoding="UTF-8" ?>
     <time>1071567305</time>
 </Response>"""
 
+SAMPLE_SUCCESSFUL_FULFILL_RESPONSE = """<?xml version="1.0" encoding="UTF-8"?>
+<Response>
+    <datacash_reference>3000000088888888</datacash_reference>
+    <merchantreference>3000000088888888</merchantreference>
+    <mode>TEST</mode>
+    <reason>FULFILLED OK</reason>
+    <status>1</status>
+    <time>1338297619</time>
+</Response>"""
+
 
 class MockBillingAddress(object):
     def __init__(self, **kwargs):
@@ -111,6 +121,27 @@ class FacadeTests(TestCase, XmlTestingMixin):
     def setUp(self):
         self.facade = Facade()
 
+    def test_second_fulfill_has_merchant_ref(self):
+        # Initial pre-auth
+        self.facade.gateway._fetch_response_xml = Mock(return_value=SAMPLE_RESPONSE)
+        card = Bankcard('1000350000000007', '10/13', cvv='345')
+        ref = self.facade.pre_authorise('1234', D('100.00'), card)
+        txn = OrderTransaction.objects.get(datacash_reference=ref)
+
+        # First fulfill
+        self.facade.gateway._fetch_response_xml = Mock(
+            return_value=SAMPLE_SUCCESSFUL_FULFILL_RESPONSE)
+        self.facade.fulfill_transaction('1234', D('50.00'),
+                                        txn.datacash_reference, txn.auth_code)
+
+        self.facade.fulfill_transaction('1234', D('40.00'),
+                                        txn.datacash_reference, txn.auth_code)
+        fulfill_txn = OrderTransaction.objects.get(
+            order_number='1234',
+            amount=D('40.00')
+        )
+        self.assertTrue('merchantreference' in fulfill_txn.request_xml)
+
     def test_zero_amount_for_pre_raises_exception(self):
         card = Bankcard('1000350000000007', '10/13', cvv='345')
         with self.assertRaises(UnableToTakePayment):
@@ -120,12 +151,6 @@ class FacadeTests(TestCase, XmlTestingMixin):
         card = Bankcard('1000350000000007', '10/13', cvv='345')
         with self.assertRaises(UnableToTakePayment):
             self.facade.authorise('1234', D('0.00'), card)
-
-    def test_mechant_refs_are_unique(self):
-        order_num = '12345'
-        ref1 = self.facade.generate_merchant_reference(order_num)
-        ref2 = self.facade.generate_merchant_reference(order_num)
-        self.assertNotEquals(ref1, ref2)
 
     def test_auth_request_creates_txn_model(self):
         self.facade.gateway._fetch_response_xml = Mock(return_value=SAMPLE_RESPONSE)
@@ -330,7 +355,7 @@ class TransactionModelTests(TestCase, XmlTestingMixin):
                                               reason='ACCEPTED',
                                               request_xml=SAMPLE_CV2AVS_REQUEST,
                                               response_xml=SAMPLE_RESPONSE)
-        self.assertTrue('Datacash txn ' in  str(txn))
+        self.assertTrue('AUTH txn ' in  str(txn))
 
     def test_cvv_numbers_are_not_saved_in_xml(self):
         txn = OrderTransaction.objects.create(order_number='1000',
