@@ -11,6 +11,7 @@ setup(name='django-oscar-datacash',
       keywords="Payment, Datacash",
       license='BSD',
       packages=find_packages(exclude=['sandbox*', 'tests*']),
+      include_package_data=True,
       install_requires=['django-oscar==0.2',],
       # See http://pypi.python.org/pypi?%3Aaction=list_classifiers
       classifiers=['Environment :: Web Environment',

@@ -245,8 +245,8 @@ Here's an example:
 Changelog
 =========
 
-0.3.2 / 2012-06-13
-------------------
+0.3.2, 0.3.3 / 2012-06-13
+-------------------------
 * Updated packaging to include HTML templates
 
 0.3.1 / 2012-06-12
