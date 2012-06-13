@@ -228,8 +228,8 @@ Here's an example:
 Changelog
 =========
 
-0.3.1 / 2012-06-12
-------------------
+0.3.1, 0.3.2 / 2012-06-12
+-------------------------
 * Added handling for split shipment payments
 
 0.3 / 2012-05-10
