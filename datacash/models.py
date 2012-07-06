@@ -33,6 +33,9 @@ class OrderTransaction(models.Model):
     response_xml = models.TextField()
     
     date_created = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        ordering = ('-date_created',)
     
     def save(self, *args, **kwargs):
         # Ensure sensitive data isn't saved
@@ -45,9 +48,9 @@ class OrderTransaction(models.Model):
 
     def __unicode__(self):
         return u'%s txn for order %s - ref: %s, status: %s' % (
-            self.method.upper(), 
+            self.method.upper(),
             self.order_number,
-            self.datacash_reference, 
+            self.datacash_reference,
             self.status)
 
     @property
