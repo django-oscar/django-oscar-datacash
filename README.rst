@@ -8,9 +8,13 @@ oscar.
 
 .. _`django-oscar`: https://github.com/tangentlabs/django-oscar
 
-View the `continuous integration status`_.
+* View the `continuous integration status`_.
+* `PyPI homepage`_
+* `crate.io page`_
 
 .. _`continuous integration status`: http://travis-ci.org/#!/tangentlabs/django-oscar-datacash
+.. _`PyPI homepage`: http://pypi.python.org/pypi/django-oscar-datacash/
+.. _`crate.io page`: https://crate.io/packages/django-oscar-datacash/
 
 .. image:: https://secure.travis-ci.org/tangentlabs/django-oscar-datacash.png
 
@@ -125,6 +129,19 @@ for further details on the various processing models that are available.
 Oscar also has a billing address form that can be used to collect billing address information
 to submit to DataCash.  This is only required if your merchant account has Cv2Avs enabled. 
 
+Integration into dashboard
+--------------------------
+
+Simply include the URLs in your ``urls.py``::
+
+    from datacash.app import application
+
+    urlpatterns = patterns('',
+        ...
+        (r'^dashboard/datacash/', include(application.urls)),
+        ...
+    )
+
 Integration trouble-shooting
 ----------------------------
 
@@ -228,8 +245,12 @@ Here's an example:
 Changelog
 =========
 
-0.3.1, 0.3.2 / 2012-06-12
+0.3.2, 0.3.3 / 2012-06-13
 -------------------------
+* Updated packaging to include HTML templates
+
+0.3.1 / 2012-06-12
+------------------
 * Added handling for split shipment payments
 
 0.3 / 2012-05-10
