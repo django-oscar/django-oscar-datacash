@@ -383,7 +383,10 @@ class TransactionModelTests(TestCase, XmlTestingMixin):
         self.assertXmlElementEquals(txn.request_xml, 'XXXXXXXXXXXX0004', 'Request.Transaction.CardTxn.Card.pan')
 
 
-class GatewayWithCV2AVSMockTests(TestCase, XmlTestingMixin):
+class TestGatewayWithCV2AVSMock(TestCase, XmlTestingMixin):
+    """
+    Gateway using CV2AVS
+    """
 
     def setUp(self):
         self.gateway = Gateway('example.com', 'dummyclient', 'dummypassword', True)
@@ -412,7 +415,10 @@ class GatewayWithCV2AVSMockTests(TestCase, XmlTestingMixin):
         self.assertXmlElementEquals(response.request_xml, 'ecomm', 'Request.Transaction.TxnDetails.capturemethod')
 
 
-class GatewayWithoutCV2AVSMockTests(TestCase, XmlTestingMixin):
+class TestGatewayWithoutCV2AVSMock(TestCase, XmlTestingMixin):
+    """
+    Gateway without CV2AVS
+    """
 
     def setUp(self):
         self.gateway = Gateway('example.com', 'dummyclient', 'dummypassword')
@@ -624,8 +630,11 @@ class DeclinedResponseTests(TestCase):
 
 
 class MiscTests(TestCase):
+    """
+    Miscellaneous stuff:
+    """
 
-    def test_constant_exist(self):
+    def test_datacash_constant_exist(self):
         from datacash import DATACASH
         self.assertEqual('Datacash', DATACASH)
 
