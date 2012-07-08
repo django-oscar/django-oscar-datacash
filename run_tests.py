@@ -40,7 +40,7 @@ if not settings.configured:
                 ],
             DEBUG=False,
             SITE_ID=1,
-            NOSE_ARGS=['-s'],
+            NOSE_ARGS=['-s', '--with-spec'],
             **datacash_settings
         )
 
