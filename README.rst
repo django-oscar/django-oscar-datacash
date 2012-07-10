@@ -245,6 +245,10 @@ Here's an example:
 Changelog
 =========
 
+0.3.4 / 2012-07-08
+------------------
+* Minor tweak to sort order of transactions in dashboard
+
 0.3.2, 0.3.3 / 2012-06-13
 -------------------------
 * Updated packaging to include HTML templates

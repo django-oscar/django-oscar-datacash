@@ -44,6 +44,8 @@ class OrderTransaction(models.Model):
             self.request_xml = cc_regex.sub('XXXXXXXXXXXX', self.request_xml)
             ccv_regex = re.compile(r'<cv2>\d+</cv2>')
             self.request_xml = ccv_regex.sub('<cv2>XXX</cv2>', self.request_xml)
+            pw_regex = re.compile(r'<password>.*</password>')
+            self.request_xml = pw_regex.sub('<password>XXX</password>', self.request_xml)
         super(OrderTransaction, self).save(*args, **kwargs)
 
     def __unicode__(self):
