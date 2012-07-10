@@ -357,7 +357,7 @@ class TransactionModelTests(TestCase, XmlTestingMixin):
                                               response_xml=SAMPLE_RESPONSE)
         self.assertTrue('AUTH txn ' in  str(txn))
 
-    def test_cvv_numbers_are_not_saved_in_xml(self):
+    def test_password_is_not_saved_in_xml(self):
         txn = OrderTransaction.objects.create(order_number='1000',
                                               method='auth',
                                               datacash_reference='3000000088888888',
@@ -369,6 +369,19 @@ class TransactionModelTests(TestCase, XmlTestingMixin):
                                               response_xml=SAMPLE_RESPONSE)
         self.assertXmlElementEquals(txn.request_xml, 'XXX',
                                     'Request.Transaction.CardTxn.Card.Cv2Avs.cv2')
+
+    def test_cvv_numbers_are_not_saved_in_xml(self):
+        txn = OrderTransaction.objects.create(order_number='1000',
+                                              method='auth',
+                                              datacash_reference='3000000088888888',
+                                              merchant_reference='1000001',
+                                              amount=D('95.99'),
+                                              status=1,
+                                              reason='ACCEPTED',
+                                              request_xml=SAMPLE_CV2AVS_REQUEST,
+                                              response_xml=SAMPLE_RESPONSE)
+        self.assertXmlElementEquals(txn.request_xml, 'XXX',
+                                    'Request.Authentication.password')
     
     def test_cc_numbers_are_not_saved_in_xml(self):
         txn = OrderTransaction.objects.create(order_number='1000',
