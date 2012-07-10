@@ -1,4 +1,4 @@
-import datetime
+import random
 
 from django.conf import settings
 from oscar.apps.payment.exceptions import UnableToTakePayment, InvalidGatewayRequestError
@@ -102,9 +102,15 @@ class Facade(object):
         return self.handle_response(gateway.PRE, order_number, amount, response)
 
     def merchant_reference(self, order_number, method):
+        # Determine the previous number of these transactions. 
         num_previous = OrderTransaction.objects.filter(order_number=order_number,
                                                        method=method).count()
-        return u'%s_%s_%d' % (order_number, method.upper(), num_previous+1)
+        # Get a random number to append to the end.  This solves the problem
+        # where a previous request crashed out and didn't save a model instance.
+        # Hence we can get a clash of merchant references.
+        rand = "%04.f" % (random.random() * 10000)
+        return u'%s_%s_%d_%s' % (order_number, method.upper(), num_previous+1,
+                                 rand)
 
     def fulfill_transaction(self, order_number, amount, txn_reference, auth_code):
         """
