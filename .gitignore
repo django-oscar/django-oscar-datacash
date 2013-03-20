@@ -6,3 +6,4 @@ integration.py
 dist/
 .coverage
 htmlcov/*
+sandbox/public
