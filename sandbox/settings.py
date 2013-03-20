@@ -66,6 +66,11 @@ MEDIA_URL = '/media/'
 STATIC_URL = '/static/'
 STATICFILES_DIRS = (location('static/'),)
 STATIC_ROOT = location('public')
+STATICFILES_FINDERS = (
+    'django.contrib.staticfiles.finders.FileSystemFinder',
+    'django.contrib.staticfiles.finders.AppDirectoriesFinder',
+    'compressor.finders.CompressorFinder',
+)
 
 # Make this unique, and don't share it with anybody.
 SECRET_KEY = '$)a7n&o80u!6y5t-+jrd3)3!%vh&shg$wqpjpxc!ar&p#!)n1a'
@@ -90,7 +95,7 @@ TEMPLATE_CONTEXT_PROCESSORS = (
     'oscar.apps.promotions.context_processors.promotions',
     'oscar.apps.checkout.context_processors.checkout',
     'oscar.core.context_processors.metadata',
-) 
+)
 
 MIDDLEWARE_CLASSES = (
     'django.middleware.common.CommonMiddleware',
@@ -197,6 +202,7 @@ INSTALLED_APPS = [
     'haystack',
     'sorl.thumbnail',
     'datacash',
+    'compressor',
     'south',
 ]
 from oscar import get_core_apps
@@ -219,10 +225,18 @@ from oscar.defaults import *
 OSCAR_ALLOW_ANON_CHECKOUT = True
 
 # Haystack settings
-HAYSTACK_SITECONF = 'oscar.search_sites'
-HAYSTACK_SEARCH_ENGINE = 'dummy'
+HAYSTACK_CONNECTIONS = {
+    'default': {
+        'ENGINE': 'haystack.backends.simple_backend.SimpleEngine',
+    },
+}
 
 OSCAR_SHOP_TAGLINE = 'Datacash sandbox'
+
+COMPRESS_ENABLED = False
+COMPRESS_PRECOMPILERS = (
+    ('text/less', 'lessc {infile} {outfile}'),
+)
 
 # Datacash settings
 
