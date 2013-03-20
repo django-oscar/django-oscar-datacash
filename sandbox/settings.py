@@ -239,6 +239,20 @@ COMPRESS_PRECOMPILERS = (
 
 # Datacash settings
 
+# Add the Datacash dashboard to the nav
+OSCAR_DASHBOARD_NAVIGATION.append(
+    {
+        'label': 'Datacash',
+        'icon': 'icon-shopping-cart',
+        'children': [
+            {
+                'label': 'Transactions',
+                'url_name': 'datacash-transaction-list',
+            },
+        ]
+    })
+
+
 try:
     from integration import *
 except ImportError:

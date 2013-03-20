@@ -11,10 +11,10 @@ class Facade(object):
     """
     A bridge between oscar's objects and the core gateway object
     """
-    
+
     def __init__(self):
         self.gateway = gateway.Gateway(settings.DATACASH_HOST,
-                                       settings.DATACASH_CLIENT, 
+                                       settings.DATACASH_CLIENT,
                                        settings.DATACASH_PASSWORD,
                                        getattr(settings, 'DATACASH_USE_CV2AVS', False),
                                        getattr(settings, 'DATACASH_CAPTURE_METHOD', 'ecomm')
@@ -75,7 +75,7 @@ class Facade(object):
                       txn_reference=None, billing_address=None):
         """
         Ring-fence an amount of money from the given card.  This is the first stage
-        of a two-stage payment process.  A further call to fulfill is required to 
+        of a two-stage payment process.  A further call to fulfill is required to
         debit the money.
         """
         if amount == 0:
@@ -102,7 +102,7 @@ class Facade(object):
         return self.handle_response(gateway.PRE, order_number, amount, response)
 
     def merchant_reference(self, order_number, method):
-        # Determine the previous number of these transactions. 
+        # Determine the previous number of these transactions.
         num_previous = OrderTransaction.objects.filter(order_number=order_number,
                                                        method=method).count()
         # Get a random number to append to the end.  This solves the problem
