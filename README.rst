@@ -245,6 +245,11 @@ Here's an example:
 Changelog
 =========
 
+0.3.5 / 2012-07-08
+------------------
+* Merchants passwords now removed from saved raw request XML
+* A random int is now appended to the merchant ref to avoid having duplicates
+
 0.3.4 / 2012-07-08
 ------------------
 * Minor tweak to sort order of transactions in dashboard
