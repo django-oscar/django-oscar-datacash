@@ -1,4 +1,5 @@
 {% extends 'oscar/checkout/payment_details.html' %}
+{% load i18n %}
 
 {% block payment_details_content %}
 
@@ -6,7 +7,7 @@
 	<table>
 		{% csrf_token %}
 		{{ bankcard_form.as_table }}
-		<tr><td><button type="submit" value="Continue" class="btn btn-primary btn-large">Continue</button></td></tr>
+		<tr><td><button type="submit" value="{% trans "Continue" %}" class="btn btn-primary btn-large">{% trans "Continue" %}</button></td></tr>
 	</table>
 </form>
 

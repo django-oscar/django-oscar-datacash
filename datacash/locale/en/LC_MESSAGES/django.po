@@ -1,0 +1,98 @@
+# SOME DESCRIPTIVE TITLE.
+# Copyright (C) YEAR THE PACKAGE'S COPYRIGHT HOLDER
+# This file is distributed under the same license as the PACKAGE package.
+# FIRST AUTHOR <EMAIL@ADDRESS>, YEAR.
+#
+#, fuzzy
+msgid ""
+msgstr ""
+"Project-Id-Version: PACKAGE VERSION\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2013-04-09 11:41+0100\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language-Team: LANGUAGE <LL@li.org>\n"
+"Language: \n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+
+#: templates/dashboard/datacash/transaction_detail.html:6
+msgid "Datacash transaction"
+msgstr ""
+
+#: templates/dashboard/datacash/transaction_detail.html:12
+#: templates/dashboard/datacash/transaction_list.html:12
+msgid "Dashboard"
+msgstr ""
+
+#: templates/dashboard/datacash/transaction_detail.html:16
+msgid "Datacash"
+msgstr ""
+
+#: templates/dashboard/datacash/transaction_detail.html:25
+msgid "Transaction"
+msgstr ""
+
+#: templates/dashboard/datacash/transaction_detail.html:32
+#: templates/dashboard/datacash/transaction_list.html:30
+msgid "Datacash reference"
+msgstr ""
+
+#: templates/dashboard/datacash/transaction_detail.html:33
+#: templates/dashboard/datacash/transaction_list.html:31
+msgid "Order number"
+msgstr ""
+
+#: templates/dashboard/datacash/transaction_detail.html:34
+#: templates/dashboard/datacash/transaction_list.html:32
+msgid "Method"
+msgstr ""
+
+#: templates/dashboard/datacash/transaction_detail.html:35
+#: templates/dashboard/datacash/transaction_list.html:33
+msgid "Amount"
+msgstr ""
+
+#: templates/dashboard/datacash/transaction_detail.html:36
+#: templates/dashboard/datacash/transaction_list.html:34
+msgid "Merchant reference"
+msgstr ""
+
+#: templates/dashboard/datacash/transaction_detail.html:37
+#: templates/dashboard/datacash/transaction_list.html:35
+msgid "Auth code"
+msgstr ""
+
+#: templates/dashboard/datacash/transaction_detail.html:38
+#: templates/dashboard/datacash/transaction_list.html:36
+msgid "Status"
+msgstr ""
+
+#: templates/dashboard/datacash/transaction_detail.html:39
+#: templates/dashboard/datacash/transaction_list.html:37
+msgid "Reason"
+msgstr ""
+
+#: templates/dashboard/datacash/transaction_detail.html:40
+msgid "Request XML"
+msgstr ""
+
+#: templates/dashboard/datacash/transaction_detail.html:41
+msgid "Response XML"
+msgstr ""
+
+#: templates/dashboard/datacash/transaction_detail.html:42
+#: templates/dashboard/datacash/transaction_list.html:38
+msgid "Date"
+msgstr ""
+
+#: templates/dashboard/datacash/transaction_list.html:6
+#: templates/dashboard/datacash/transaction_list.html:15
+#: templates/dashboard/datacash/transaction_list.html:21
+msgid "Datacash transactions"
+msgstr ""
+
+#: templates/dashboard/datacash/transaction_list.html:55
+msgid "View"
+msgstr ""
