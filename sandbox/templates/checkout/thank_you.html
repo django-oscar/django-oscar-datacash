@@ -1,5 +1,6 @@
 {% extends 'oscar/checkout/thank_you.html' %}
 {% load currency_filters %}
+{% load i18n %}
 
 {% block checkout-nav %}
     {% include 'checkout/nav.html' with step=4 %}
@@ -7,10 +8,10 @@
 
 {% block payment_info %}
 <div class="well well-success">
-	<h3>Payment</h3>
+	<h3>{% trans "Payment" %}</h3>
 	{% for source in order.sources.all %}
 		{% if source.source_type.name == 'Datacash' %}
-		{{ source.amount_allocated|currency }} authorised on your bankcard
+		{% blocktrans with amount=source.amount_allocated|currency %}{{ amount }} authorised on your bankcard{% endblocktrans %}
 		{% else %}
 		{{ source }}
 		{% endif %}

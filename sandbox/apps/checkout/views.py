@@ -2,6 +2,7 @@ from django.http import HttpResponseRedirect
 from django.core.urlresolvers import reverse
 from django.contrib import messages
 from django.conf import settings
+from django.utils.translation import ugettext as _
 
 from oscar.apps.checkout.views import PaymentDetailsView as OscarPaymentDetailsView
 from oscar.apps.payment.forms import BankcardForm
@@ -35,7 +36,7 @@ class PaymentDetailsView(OscarPaymentDetailsView):
     def do_place_order(self, request):
         bankcard_form = BankcardForm(request.POST)
         if not bankcard_form.is_valid():
-            messages.error(request, "Invalid submission")
+            messages.error(request, _("Invalid submission"))
             return HttpResponseRedirect(reverse('checkout:payment-details'))
         bankcard = bankcard_form.get_bankcard_obj()
 
