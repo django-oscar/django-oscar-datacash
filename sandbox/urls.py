@@ -13,13 +13,11 @@ admin.autodiscover()
 
 urlpatterns = patterns('',
     (r'^admin/', include(admin.site.urls)),
+    # Include dashboard URLs
     (r'^dashboard/datacash/', include(application.urls)),
     (r'', include(shop.urls)),
 )
 if settings.DEBUG:
     urlpatterns += staticfiles_urlpatterns()
-    urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
-    urlpatterns += patterns('',
-        url(r'^404$', TemplateView.as_view(template_name='404.html')),
-        url(r'^500$', TemplateView.as_view(template_name='500.html')),
-    )
+    urlpatterns += static(
+        settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

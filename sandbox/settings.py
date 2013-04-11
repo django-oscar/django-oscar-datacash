@@ -8,6 +8,8 @@ DEBUG = True
 TEMPLATE_DEBUG = True
 SQL_DEBUG = True
 
+USE_TZ = True
+
 ADMINS = (
     # ('Your Name', 'your_email@domain.com'),
 )
@@ -18,7 +20,7 @@ MANAGERS = ADMINS
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.sqlite3', # Add 'postgresql_psycopg2', 'postgresql', 'mysql', 'sqlite3' or 'oracle'.
-        'NAME': 'db.sqlite',                      # Or path to database file if using sqlite3.
+        'NAME': location('db.sqlite'),                      # Or path to database file if using sqlite3.
         'USER': '',                      # Not used with sqlite3.
         'PASSWORD': '',                  # Not used with sqlite3.
         'HOST': '',                      # Set to empty string for localhost. Not used with sqlite3.
@@ -137,7 +139,7 @@ LOGGING = {
     },
     'handlers': {
         'null': {
-            'level':'DEBUG',
+            'level': 'DEBUG',
             'class':'django.utils.log.NullHandler',
         },
         'console':{
@@ -216,10 +218,13 @@ LOGIN_REDIRECT_URL = '/accounts/'
 APPEND_SLASH = True
 
 DEBUG_TOOLBAR_CONFIG = {
-    'INTERCEPT_REDIRECTS': False
+    'INTERCEPT_REDIRECTS': False,
 }
 
+# ==============
 # Oscar settings
+# ==============
+
 from oscar.defaults import *
 OSCAR_ALLOW_ANON_CHECKOUT = True
 
@@ -237,13 +242,15 @@ COMPRESS_PRECOMPILERS = (
     ('text/less', 'lessc {infile} {outfile}'),
 )
 
+# =================
 # Datacash settings
+# =================
 
 # Add the Datacash dashboard to the nav
 OSCAR_DASHBOARD_NAVIGATION.append(
     {
         'label': 'Datacash',
-        'icon': 'icon-shopping-cart',
+        'icon': 'icon-globe',
         'children': [
             {
                 'label': 'Transactions',
