@@ -225,15 +225,20 @@ Contributing
 To work on ``django-oscar-datacash``, clone the repo, set up a virtualenv and install
 in develop mode::
 
-    python setup.py develop
-
-then install the testing dependencies::
-
-    pip install -r requirements.txt
+    make install
 
 The test suite can then be run using::
 
-    ./run_tests.py
+    ./runtests.py
+
+There is a sandbox Oscar site that can be used for development.  Create it
+with::
+
+    make sandbox
+
+and browse it with::
+
+    python sandbox/manage.py runserver
 
 Magic card numbers are available on the Datacash site:
 https://testserver.datacash.com/software/download.cgi?show=magicnumbers
@@ -242,8 +247,14 @@ Here's an example:
 
     1000010000000007
 
+Have fun!
+
 Changelog
 =========
+
+0.4
+---
+* Oscar 0.5 support
 
 0.3.5 / 2012-07-08
 ------------------
