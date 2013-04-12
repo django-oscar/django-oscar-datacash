@@ -2,13 +2,13 @@
 Datacash package for django-oscar
 =================================
 
-This package provides integration with the payment gateway, DataCash.  It is designed to
+This package provides integration with the payment gateway, DataCash_.  It is designed to
 work seamlessly with the e-commerce framework `django-oscar`_ but can be used without 
-oscar.
+Oscar.
 
+.. _DataCash: http://www.datacash.com/
 .. _`django-oscar`: https://github.com/tangentlabs/django-oscar
 
-* View the `continuous integration status`_.
 * `PyPI homepage`_
 * `crate.io page`_
 
@@ -31,8 +31,8 @@ Sandbox
 -------
 
 When following the below instructions, it may be helpful to browse the sandbox
-folder above as this is an example oscar install which has been integrated with
-datacash.
+folder above as this is an example Oscar install which has been integrated with
+Datacash.
 
 Installation
 ------------
@@ -69,12 +69,14 @@ Integration into checkout
 -------------------------
 
 You'll need to use a subclass of ``oscar.apps.checkout.views.PaymentDetailsView`` within your own 
-checkout views.  See `oscar's documentation`_ on how to create a local version of the checkout app.
+checkout views.  See `Oscar's documentation`_ on how to create a local version of the checkout app.
 
-.. _`oscar's documentation`: http://django-oscar.readthedocs.org/en/latest/index.html
+.. _`Oscar's documentation`: http://django-oscar.readthedocs.org/en/latest/index.html
 
 Override the ``handle_payment`` method (which is blank by default) and add your integration code.  An example
-integration might look like::
+integration might look like:
+
+.. code:: python
 
     # myshop.checkout.views
     from django.conf import settings
@@ -138,7 +140,9 @@ to submit to DataCash.  This is only required if your merchant account has Cv2Av
 Integration into dashboard
 --------------------------
 
-Simply include the URLs in your ``urls.py``::
+Simply include the URLs in your ``urls.py``:
+
+.. code:: python
 
     from datacash.app import application
 
@@ -174,7 +178,9 @@ various DataCash APIs, which involve constructing XML requests and decoding XML
 responses.  All calls return a ``datacash.gateway.Response`` instance which
 provides dictionary-like access to the attributes of the response.
 
-Example calls::
+Example calls:
+
+.. code:: python
 
     from decimal import Decimal as D
     from datacash.gateway import Gateway
