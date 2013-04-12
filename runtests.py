@@ -1,6 +1,5 @@
 #!/usr/bin/env python
 import sys
-from coverage import coverage
 from optparse import OptionParser
 
 from django.conf import settings
@@ -22,7 +21,7 @@ if not settings.configured:
         for key, value in locals().items():
             if key.startswith('DATACASH'):
                 datacash_settings[key] = value
-                
+
     settings.configure(
             DATABASES={
                 'default': {
@@ -59,15 +58,10 @@ def run_tests(*test_args):
     # Run tests
     test_runner = NoseTestSuiteRunner(verbosity=1)
 
-    c = coverage(source=['datacash'], omit=['*migrations*', '*tests*'])
-    c.start()
     num_failures = test_runner.run_tests(test_args)
-    c.stop()
 
     if num_failures > 0:
         sys.exit(num_failures)
-    print "Generating HTML coverage report"
-    c.html_report()
 
 
 def generate_migration():

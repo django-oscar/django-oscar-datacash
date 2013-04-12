@@ -17,6 +17,12 @@ oscar.
 .. _`crate.io page`: https://crate.io/packages/django-oscar-datacash/
 
 .. image:: https://secure.travis-ci.org/tangentlabs/django-oscar-datacash.png
+    :alt: Continuous integration
+    :target: http://travis-ci.org/#!/tangentlabs/django-oscar-datacash
+
+.. image:: https://coveralls.io/repos/tangentlabs/django-oscar-datacash/badge.png?branch=master
+    :alt: Coverage
+    :target: https://coveralls.io/r/tangentlabs/django-oscar-datacash
 
 Getting started
 ===============
