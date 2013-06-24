@@ -72,11 +72,15 @@ class Facade(object):
     # ========================
 
     def pre_authorise(self, order_number, amount, bankcard=None,
-                      txn_reference=None, billing_address=None):
+                      txn_reference=None, billing_address=None,
+                      the3rdman_data=None):
         """
-        Ring-fence an amount of money from the given card.  This is the first stage
-        of a two-stage payment process.  A further call to fulfill is required to
-        debit the money.
+        Ring-fence an amount of money from the given card.  This is the first
+        stage of a two-stage payment process.  A further call to fulfill is
+        required to debit the money.
+
+        As there are SO MANY values that can be submitted to 3rdMan, a separate
+        dict of data must be submitted as a kwarg.
         """
         if amount == 0:
             raise UnableToTakePayment("Order amount must be non-zero")
@@ -89,13 +93,14 @@ class Facade(object):
                                         currency=self.currency,
                                         merchant_reference=merchant_ref,
                                         ccv=bankcard.ccv,
-                                        **address_data
-                                        )
+                                        the3rdman_data=the3rdman_data,
+                                        **address_data)
         elif txn_reference:
             response = self.gateway.pre(amount=amount,
                                         currency=self.currency,
                                         merchant_reference=merchant_ref,
                                         previous_txn_reference=txn_reference,
+                                        the3rdman_data=the3rdman_data,
                                         **address_data)
         else:
             raise ValueError("You must specify either a bankcard or a previous txn reference")

@@ -6,6 +6,8 @@ import datetime
 
 from oscar.apps.payment.exceptions import GatewayError
 
+from . import the3rdman
+
 logger = logging.getLogger('datacash')
 
 # Methods
@@ -150,20 +152,32 @@ class Gateway(object):
         # TxnDetails
         txn_details = self._create_element(doc, txn, 'TxnDetails')
         if 'merchant_reference' in kwargs:
-            self._create_element(doc, txn_details, 'merchantreference', kwargs['merchant_reference'])
+            self._create_element(
+                doc, txn_details, 'merchantreference',
+                kwargs['merchant_reference'])
         if 'amount' in kwargs:
             if is_historic:
-                self._create_element(doc, txn_details, 'amount', str(kwargs['amount']))
+                self._create_element(doc, txn_details, 'amount',
+                                     str(kwargs['amount']))
             else:
-                self._create_element(doc, txn_details, 'amount', str(kwargs['amount']), {'currency': kwargs['currency']})
-        self._create_element(doc, txn_details, 'capturemethod', self._capturemethod)
+                self._create_element(
+                    doc, txn_details, 'amount', str(kwargs['amount']),
+                    {'currency': kwargs['currency']})
+        self._create_element(
+            doc, txn_details, 'capturemethod', self._capturemethod)
+
+        # The3rdMan
+        if 'the3rdman_data' in kwargs:
+            the3rdman.add_fraud_fields(
+                doc, txn_details, **kwargs['the3rdman_data'])
 
         return doc.toxml()
 
     def _do_request(self, method, **kwargs):
         amount = kwargs.get('amount', '')
         merchant_ref = kwargs.get('merchant_reference', '')
-        logger.info("Performing %s request - amount: %s, merchant_ref: %s" % (method, amount, merchant_ref))
+        logger.info("Performing %s request - amount: %s, merchant_ref: %s" % (
+            method, amount, merchant_ref))
 
         request_xml = self._build_request_xml(method, **kwargs)
         response_xml = self._fetch_response_xml(request_xml)

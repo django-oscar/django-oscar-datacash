@@ -7,8 +7,12 @@ from django.utils.translation import ugettext as _
 from oscar.apps.checkout.views import PaymentDetailsView as OscarPaymentDetailsView
 from oscar.apps.payment.forms import BankcardForm
 from oscar.apps.payment.models import SourceType, Source
+from oscar.apps.order.models import ShippingAddress
+from oscar.apps.address.models import UserAddress
+
 
 from datacash.facade import Facade
+from datacash import the3rdman
 
 
 class PaymentDetailsView(OscarPaymentDetailsView):
@@ -45,13 +49,36 @@ class PaymentDetailsView(OscarPaymentDetailsView):
         return self.submit(request.basket,
                            payment_kwargs={'bankcard': bankcard})
 
+    # This is only required for Oscar < 0.6 which doesn't support a nice
+    # way of getting a ShippingAddress instance without saving it.
+    def get_shipping_address(self):
+        addr_data = self.checkout_session.new_shipping_address_fields()
+        if addr_data:
+            return ShippingAddress(**addr_data)
+
+        addr_id = self.checkout_session.user_address_id()
+        if addr_id:
+            # Create shipping address from an existing user address
+            user_addr = UserAddress.objects.get(id=addr_id)
+            shipping_addr = ShippingAddress()
+            user_addr.populate_alternative_model(shipping_addr)
+            return shipping_addr
+
     def handle_payment(self, order_number, total_incl_tax, **kwargs):
         # Make request to DataCash - if there any problems (eg bankcard
         # not valid / request refused by bank) then an exception would be
-        # raised ahd handled)
+        # raised and handled)
         facade = Facade()
+
+        # Use The3rdMan
+        fraud_data = the3rdman.build_data_dict(
+            request=self.request,
+            order_number=order_number,
+            shipping_address=self.get_shipping_address())
+
         datacash_ref = facade.pre_authorise(
-            order_number, total_incl_tax, kwargs['bankcard'])
+            order_number, total_incl_tax, kwargs['bankcard'],
+            the3rdman_data=fraud_data)
 
         # Request was successful - record the "payment source".  As this
         # request was a 'pre-auth', we set the 'amount_allocated' - if we had

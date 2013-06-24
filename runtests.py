@@ -22,6 +22,14 @@ if not settings.configured:
             if key.startswith('DATACASH'):
                 datacash_settings[key] = value
 
+    from oscar.defaults import *
+    for key, value in locals().items():
+        if key.startswith('OSCAR'):
+            datacash_settings[key] = value
+    datacash_settings['OSCAR_EAGER_ALERTS'] = False
+
+    from oscar import get_core_apps
+
     settings.configure(
             DATABASES={
                 'default': {
@@ -36,12 +44,16 @@ if not settings.configured:
                 'django.contrib.sites',
                 'datacash',
                 'south',
-                ],
+                ] + get_core_apps(),
             DEBUG=False,
             SITE_ID=1,
             NOSE_ARGS=['-s', '--with-spec'],
-            **datacash_settings
-        )
+            HAYSTACK_CONNECTIONS={
+                'default': {
+                    'ENGINE': 'haystack.backends.simple_backend.SimpleEngine',
+                },
+            },
+            **datacash_settings)
 
 # Needs to be here to avoid missing SETTINGS env var
 from django_nose import NoseTestSuiteRunner

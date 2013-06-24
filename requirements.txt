@@ -6,6 +6,7 @@ django-nose==1.0
 pinocchio==0.3.1
 coveralls>=0.1.1
 tox
+django-oscar-testsupport==0.3.1
 
 # Development
 Werkzeug==0.6.2
