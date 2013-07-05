@@ -168,7 +168,7 @@ class Gateway(object):
             doc, txn_details, 'capturemethod', self._capturemethod)
 
         # The3rdMan
-        if 'the3rdman_data' in kwargs:
+        if 'the3rdman_data' in kwargs and kwargs['the3rdman_data']:
             the3rdman.add_fraud_fields(
                 doc, txn_details, **kwargs['the3rdman_data'])
 

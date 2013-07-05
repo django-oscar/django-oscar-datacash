@@ -153,7 +153,7 @@ class Facade(object):
     # ========================
 
     def authorise(self, order_number, amount, bankcard=None, txn_reference=None,
-                  billing_address=None):
+                  billing_address=None, the3rdman_data=None):
         """
         Debit a bankcard for the given amount
 
@@ -172,12 +172,14 @@ class Facade(object):
                                          currency=self.currency,
                                          merchant_reference=merchant_ref,
                                          ccv=bankcard.ccv,
+                                         the3rdman_data=the3rdman_data,
                                          **address_data)
         elif txn_reference:
             response = self.gateway.auth(amount=amount,
                                          currency=self.currency,
                                          merchant_reference=merchant_ref,
                                          previous_txn_reference=txn_reference,
+                                         the3rdman_data=the3rdman_data,
                                          **address_data)
         else:
             raise ValueError("You must specify either a bankcard or a previous txn reference")
