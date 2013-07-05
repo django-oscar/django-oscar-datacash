@@ -79,10 +79,11 @@ class Response(object):
 
 class Gateway(object):
 
-    def __init__(self, host, client, password, cv2avs=False, capturemethod='ecomm'):
+    def __init__(self, host, path,  client, password, cv2avs=False, capturemethod='ecomm'):
         if host.startswith('http'):
             raise RuntimeError("DATACASH_HOST should not include http")
         self._host = host
+        self._path = path
         self._client = client
         self._password = password
         self._cv2avs = cv2avs
@@ -93,7 +94,7 @@ class Gateway(object):
         conn = httplib.HTTPSConnection(self._host, 443, timeout=30)
         headers = {"Content-type": "application/xml",
                    "Accept": ""}
-        conn.request("POST", "/Transaction", request_xml, headers)
+        conn.request("POST", self._path, request_xml, headers)
         response = conn.getresponse()
         response_xml = response.read()
         if response.status != httplib.OK:

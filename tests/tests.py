@@ -188,11 +188,11 @@ class FacadeTests(TestCase, XmlTestingMixin):
         self.facade.pre_authorise('100001', D('123.22'), card,
                                   billing_address=address)
         request_xml = mock.call_args[0][0]
-        self.assertXmlElementEquals(request_xml, '1 Egg Street', 
+        self.assertXmlElementEquals(request_xml, '1 Egg Street',
                                     'Request.Transaction.CardTxn.Card.Cv2Avs.street_address1')
-        self.assertXmlElementEquals(request_xml, 'Farmville', 
+        self.assertXmlElementEquals(request_xml, 'Farmville',
                                     'Request.Transaction.CardTxn.Card.Cv2Avs.street_address2')
-        self.assertXmlElementEquals(request_xml, 'N1 8RT', 
+        self.assertXmlElementEquals(request_xml, 'N1 8RT',
                                     'Request.Transaction.CardTxn.Card.Cv2Avs.postcode')
 
     def test_auth_request_uses_billing_address_fields(self):
@@ -205,11 +205,11 @@ class FacadeTests(TestCase, XmlTestingMixin):
                                      postcode='N1 8RT')
         self.facade.authorise('100001', D('123.22'), card, billing_address=address)
         request_xml = mock.call_args[0][0]
-        self.assertXmlElementEquals(request_xml, '1 Egg Street', 
+        self.assertXmlElementEquals(request_xml, '1 Egg Street',
                                     'Request.Transaction.CardTxn.Card.Cv2Avs.street_address1')
-        self.assertXmlElementEquals(request_xml, 'Farmville', 
+        self.assertXmlElementEquals(request_xml, 'Farmville',
                                     'Request.Transaction.CardTxn.Card.Cv2Avs.street_address2')
-        self.assertXmlElementEquals(request_xml, 'N1 8RT', 
+        self.assertXmlElementEquals(request_xml, 'N1 8RT',
                                     'Request.Transaction.CardTxn.Card.Cv2Avs.postcode')
 
     def test_refund_request_doesnt_include_currency_attribute(self):
@@ -262,9 +262,9 @@ class FacadeTests(TestCase, XmlTestingMixin):
 
     def test_successful_cancel_request(self):
         response_xml = """<?xml version="1.0" encoding="UTF-8"?>
-<Response> 
-    <datacash_reference>4900200000000001</datacash_reference> 
-    <merchantreference>4900200000000001</merchantreference> 
+<Response>
+    <datacash_reference>4900200000000001</datacash_reference>
+    <merchantreference>4900200000000001</merchantreference>
     <mode>TEST</mode>
     <reason>CANCELLED OK</reason>
     <status>1</status>
@@ -276,9 +276,9 @@ class FacadeTests(TestCase, XmlTestingMixin):
 
     def test_successful_fulfill_request(self):
         response_xml = """<?xml version="1.0" encoding="UTF-8"?>
-<Response> 
-    <datacash_reference>3900200000000001</datacash_reference> 
-    <merchantreference>3900200000000001</merchantreference> 
+<Response>
+    <datacash_reference>3900200000000001</datacash_reference>
+    <merchantreference>3900200000000001</merchantreference>
     <mode>LIVE</mode>
     <reason>FULFILLED OK</reason>
     <status>1</status>
@@ -291,12 +291,12 @@ class FacadeTests(TestCase, XmlTestingMixin):
 
     def test_successful_refund_request(self):
         response_xml = """<?xml version="1.0" encoding="UTF-8"?>
-<Response> 
-    <datacash_reference>4000000088889999</datacash_reference> 
+<Response>
+    <datacash_reference>4000000088889999</datacash_reference>
     <HistoricTxn>
         <authcode>896876</authcode>
-    </HistoricTxn> 
-    <merchantreference>4100000088888888</merchantreference> 
+    </HistoricTxn>
+    <merchantreference>4100000088888888</merchantreference>
     <mode>LIVE</mode>
     <reason>ACCEPTED</reason>
     <status>1</status>
@@ -311,10 +311,10 @@ class FacadeTests(TestCase, XmlTestingMixin):
         response_xml = """<?xml version="1.0" encoding="UTF-8"?>
 <Response>
     <CardTxn>
-        <authcode>DECLINED</authcode> 
-        <card_scheme>Mastercard</card_scheme> 
+        <authcode>DECLINED</authcode>
+        <card_scheme>Mastercard</card_scheme>
         <country>United Kingdom</country>
-    </CardTxn> 
+    </CardTxn>
     <datacash_reference>4400200045583767</datacash_reference>
     <merchantreference>AA004630</merchantreference>
     <mode>TEST</mode>
@@ -329,9 +329,9 @@ class FacadeTests(TestCase, XmlTestingMixin):
 
     def test_invalid_request_exception_raised_for_error(self):
         response_xml = """<?xml version="1.0" encoding="UTF-8"?>
-<Response> 
+<Response>
     <datacash_reference>21859999000005679</datacash_reference>
-    <information>This vTID is not configured to process pre-registered card transactions.</information> 
+    <information>This vTID is not configured to process pre-registered card transactions.</information>
     <merchantreference>123403</merchantreference>
     <reason>Prereg: Merchant Not Subscribed</reason>
     <status>251</status>
@@ -382,7 +382,7 @@ class TransactionModelTests(TestCase, XmlTestingMixin):
                                               response_xml=SAMPLE_RESPONSE)
         self.assertXmlElementEquals(txn.request_xml, 'XXX',
                                     'Request.Authentication.password')
-    
+
     def test_cc_numbers_are_not_saved_in_xml(self):
         txn = OrderTransaction.objects.create(order_number='1000',
                                               method='auth',
@@ -402,7 +402,7 @@ class TestGatewayWithCV2AVSMock(TestCase, XmlTestingMixin):
     """
 
     def setUp(self):
-        self.gateway = Gateway('example.com', 'dummyclient', 'dummypassword', True)
+        self.gateway = Gateway('example.com', '/Transaction', 'dummyclient', 'dummypassword', True)
 
     def gateway_auth(self, amount=D('1000.00'), currency='GBP', card_number='1000350000000007',
             expiry_date='10/12', merchant_reference='TEST_132473839018', response_xml=SAMPLE_RESPONSE, **kwargs):
@@ -434,7 +434,7 @@ class TestGatewayWithoutCV2AVSMock(TestCase, XmlTestingMixin):
     """
 
     def setUp(self):
-        self.gateway = Gateway('example.com', 'dummyclient', 'dummypassword')
+        self.gateway = Gateway('example.com', '/Transaction', 'dummyclient', 'dummypassword')
 
     def gateway_auth(self, amount=D('1000.00'), currency='GBP', card_number='1000350000000007',
             expiry_date='10/12', merchant_reference='TEST_132473839018', response_xml=SAMPLE_RESPONSE, **kwargs):
@@ -479,11 +479,11 @@ class TestGatewayWithoutCV2AVSMock(TestCase, XmlTestingMixin):
         response_xml = """<?xml version="1.0" encoding="UTF-8"?>
 <Response>
     <CardTxn>
-        <authcode>DECLINED</authcode> 
-        <card_scheme>Mastercard</card_scheme> 
+        <authcode>DECLINED</authcode>
+        <card_scheme>Mastercard</card_scheme>
         <country>United Kingdom</country>
-    </CardTxn> 
-    <datacash_reference>4400200045583767</datacash_reference> 
+    </CardTxn>
+    <datacash_reference>4400200045583767</datacash_reference>
     <merchantreference>AA004630</merchantreference>
     <mode>TEST</mode>
     <reason>DECLINED</reason>
@@ -555,7 +555,7 @@ class TestGatewayWithoutCV2AVSMock(TestCase, XmlTestingMixin):
                                      currency='GBP',
                                      merchant_reference='TEST_132473839018',
                                      previous_txn_reference='4500203021916406')
-        self.assertXmlElementEquals(response.request_xml, 
+        self.assertXmlElementEquals(response.request_xml,
             '4500203021916406', 'Request.Transaction.CardTxn.card_details')
 
     def test_request_xml_for_pre_using_previous_transaction_ref(self):
@@ -564,7 +564,7 @@ class TestGatewayWithoutCV2AVSMock(TestCase, XmlTestingMixin):
                                     currency='GBP',
                                     merchant_reference='TEST_132473839018',
                                     previous_txn_reference='4500203021916406')
-        self.assertXmlElementEquals(response.request_xml, 
+        self.assertXmlElementEquals(response.request_xml,
             '4500203021916406', 'Request.Transaction.CardTxn.card_details')
 
 
@@ -572,7 +572,7 @@ class GatewayErrorTests(TestCase):
 
     def test_exception_raised_with_bad_host(self):
         with self.assertRaises(RuntimeError):
-            Gateway('http://test.datacash.com', client='', password='')
+            Gateway('http://test.datacash.com', '/Transaction', client='', password='')
 
 
 class ResponseTests(TestCase):
@@ -622,12 +622,12 @@ class DeclinedResponseTests(TestCase):
         response_xml = """<?xml version="1.0" encoding="UTF-8"?>
 <Response>
     <CardTxn>
-        <authcode>DECLINED</authcode> 
-        <card_scheme>Mastercard</card_scheme> 
+        <authcode>DECLINED</authcode>
+        <card_scheme>Mastercard</card_scheme>
         <country>United Kingdom</country>
-    </CardTxn> 
-    <datacash_reference>4400200045583767</datacash_reference> 
-    <merchantreference>AA004630</merchantreference> 
+    </CardTxn>
+    <datacash_reference>4400200045583767</datacash_reference>
+    <merchantreference>AA004630</merchantreference>
     <mode>TEST</mode>
     <reason>DECLINED</reason>
     <status>7</status>
@@ -662,6 +662,7 @@ class GatewayIntegrationTests(TestCase):
 
     def setUp(self):
         self.gateway = Gateway(settings.DATACASH_HOST,
+                               '/Transaction',
                                settings.DATACASH_CLIENT,
                                settings.DATACASH_PASSWORD)
 

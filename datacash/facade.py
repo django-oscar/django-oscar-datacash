@@ -13,12 +13,13 @@ class Facade(object):
     """
 
     def __init__(self):
-        self.gateway = gateway.Gateway(settings.DATACASH_HOST,
-                                       settings.DATACASH_CLIENT,
-                                       settings.DATACASH_PASSWORD,
-                                       getattr(settings, 'DATACASH_USE_CV2AVS', False),
-                                       getattr(settings, 'DATACASH_CAPTURE_METHOD', 'ecomm')
-                                      )
+        self.gateway = gateway.Gateway(
+            settings.DATACASH_HOST,
+            getattr(settings, 'DATACASH_PATH', '/Transaction'),
+            settings.DATACASH_CLIENT,
+            settings.DATACASH_PASSWORD,
+            getattr(settings, 'DATACASH_USE_CV2AVS', False),
+            getattr(settings, 'DATACASH_CAPTURE_METHOD', 'ecomm'))
         self.currency = settings.DATACASH_CURRENCY
 
     def handle_response(self, method, order_number, amount, response):

@@ -15,8 +15,9 @@ def create_element(doc, parent, tag, value=None, attributes=None):
     return ele
 
 
-def add_fraud_fields(doc, element=None, customer_info=None, delivery_info=None,
-                     billing_info=None, account_info=None, order_info=None):
+def add_fraud_fields(doc=None, element=None, customer_info=None, delivery_info=None,
+                     billing_info=None, account_info=None, order_info=None,
+                     **kwargs):
     """
     Submit a transaction to The3rdMan for Batch Fraud processing
 
@@ -28,6 +29,8 @@ def add_fraud_fields(doc, element=None, customer_info=None, delivery_info=None,
     See section 2.4.7 of the Developer Guide
     """
     # Build the request XML
+    if doc is None:
+        doc = Document()
     if element is None:
         element = Document()
     envelope = create_element(doc, element, 'The3rdMan')
