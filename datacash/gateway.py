@@ -211,7 +211,7 @@ class Gateway(object):
                 # Convert datetime instances if they have been passed.  This is
                 # really handling an upgrade issue for Oscar 0.6 where the
                 # bankcard instance returns a datetime instead of a string.
-                if isinstance(kwargs[key], datetime.datetime):
+                if isinstance(kwargs[key], datetime.date):
                     kwargs[key] = kwargs[key].strftime("%m/%y")
                 elif not re.match(r'^\d{2}/\d{2}$', value):
                     raise ValueError("%s not in format mm/yy" % key)
