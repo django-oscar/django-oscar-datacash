@@ -213,7 +213,7 @@ class Gateway(object):
                 # bankcard instance returns a datetime instead of a string.
                 if isinstance(kwargs[key], datetime.datetime):
                     kwargs[key] = kwargs[key].strftime("%m/%y")
-                if not re.match(r'^\d{2}/\d{2}$', value):
+                elif not re.match(r'^\d{2}/\d{2}$', value):
                     raise ValueError("%s not in format mm/yy" % key)
             if key == 'issue_number' and not re.match(r'^\d{1,2}$', kwargs[key]):
                 raise ValueError("Issue number must be one or two digits (passed value: %s)" % value)
