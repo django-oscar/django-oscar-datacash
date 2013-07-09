@@ -2,6 +2,7 @@ from xml.dom.minidom import Document, parseString
 import httplib
 import re
 import logging
+import datetime
 
 from oscar.apps.payment.exceptions import GatewayError
 
@@ -66,7 +67,7 @@ class Response(object):
         if 'status' in self.data and self.data['status'] is not None:
             return int(self.data['status'])
         return None
- 
+
     def is_successful(self):
         return self.data.get('status', None) == ACCEPTED
 
@@ -104,25 +105,25 @@ class Gateway(object):
         """
         doc = Document()
         req = self._create_element(doc, doc, 'Request')
-        
+
         # Authentication
         auth = self._create_element(doc, req, 'Authentication')
         self._create_element(doc, auth, 'client', self._client)
         self._create_element(doc, auth, 'password', self._password)
-            
-        # Transaction    
-        txn = self._create_element(doc, req, 'Transaction') 
-        
+
+        # Transaction
+        txn = self._create_element(doc, req, 'Transaction')
+
         # CardTxn
         if 'card_number' in kwargs or 'previous_txn_reference' in kwargs:
             card_txn = self._create_element(doc, txn, 'CardTxn')
             self._create_element(doc, card_txn, 'method', method_name)
-            
+
             if 'card_number' in kwargs:
                 card = self._create_element(doc, card_txn, 'Card')
                 self._create_element(doc, card, 'pan', kwargs['card_number'])
                 self._create_element(doc, card, 'expirydate', kwargs['expiry_date'])
-                
+
                 if 'start_date' in kwargs:
                     self._create_element(doc, card, 'startdate', kwargs['start_date'])
                 if 'issue_number' in kwargs:
@@ -130,12 +131,12 @@ class Gateway(object):
                 if 'auth_code' in kwargs:
                     self._create_element(doc, card, 'authcode', kwargs['auth_code'])
                 if self._cv2avs:
-                    self._add_cv2avs_elements(doc, card, kwargs) 
-                
+                    self._add_cv2avs_elements(doc, card, kwargs)
+
             elif 'previous_txn_reference' in kwargs:
                 self._create_element(doc, card_txn, 'card_details', kwargs['previous_txn_reference'],
                                      attributes={'type': 'preregistered'})
-        
+
         # HistoricTxn
         is_historic = False
         if 'txn_reference' in kwargs:
@@ -145,7 +146,7 @@ class Gateway(object):
             self._create_element(doc, historic_txn, 'method', method_name)
             if 'auth_code' in kwargs:
                 self._create_element(doc, historic_txn, 'authcode', kwargs['auth_code'])
-        
+
         # TxnDetails
         txn_details = self._create_element(doc, txn, 'TxnDetails')
         if 'merchant_reference' in kwargs:
@@ -156,14 +157,14 @@ class Gateway(object):
             else:
                 self._create_element(doc, txn_details, 'amount', str(kwargs['amount']), {'currency': kwargs['currency']})
         self._create_element(doc, txn_details, 'capturemethod', self._capturemethod)
-        
+
         return doc.toxml()
-        
+
     def _do_request(self, method, **kwargs):
         amount = kwargs.get('amount', '')
         merchant_ref = kwargs.get('merchant_reference', '')
         logger.info("Performing %s request - amount: %s, merchant_ref: %s" % (method, amount, merchant_ref))
-        
+
         request_xml = self._build_request_xml(method, **kwargs)
         response_xml = self._fetch_response_xml(request_xml)
         logger.debug("Received response:\n %s" % response_xml)
@@ -172,7 +173,7 @@ class Gateway(object):
 
     def _add_cv2avs_elements(self, doc, card, kwargs):
         """
-        Add CV2AVS anti-fraud elements.  Extended policy isn't 
+        Add CV2AVS anti-fraud elements.  Extended policy isn't
         handled yet.
         """
         cv2avs = self._create_element(doc, card, 'Cv2Avs')
@@ -206,8 +207,14 @@ class Gateway(object):
             value = kwargs[key]
             if key == 'amount' and value == 0:
                 raise ValueError('Amount must be non-zero')
-            if key in ('expiry_date', 'start_date') and not re.match(r'^\d{2}/\d{2}$', value):
-                raise ValueError("%s not in format dd/yy" % key)
+            if key in ('expiry_date', 'start_date'):
+                # Convert datetime instances if they have been passed.  This is
+                # really handling an upgrade issue for Oscar 0.6 where the
+                # bankcard instance returns a datetime instead of a string.
+                if isinstance(kwargs[key], datetime.datetime):
+                    kwargs[key] = kwargs[key].strftime("%m/%y")
+                if not re.match(r'^\d{2}/\d{2}$', value):
+                    raise ValueError("%s not in format mm/yy" % key)
             if key == 'issue_number' and not re.match(r'^\d{1,2}$', kwargs[key]):
                 raise ValueError("Issue number must be one or two digits (passed value: %s)" % value)
             if key == 'currency' and not re.match(r'^[A-Z]{3}$', kwargs[key]):
@@ -219,23 +226,23 @@ class Gateway(object):
     # API
     # ===
 
-    # "Initial" transaction types    
+    # "Initial" transaction types
 
     def auth(self, **kwargs):
         """
         Performs an 'auth' request, which is to debit the money immediately
         as a one-off transaction.
-        
+
         Note that currency should be ISO 4217 Alphabetic format.
-        """ 
+        """
         self._check_kwargs(kwargs, ['amount', 'currency', 'merchant_reference'])
         return self._do_request(AUTH, **kwargs)
-        
+
     def pre(self, **kwargs):
         """
         Performs an 'pre' request, which is to ring-fence the requested money
         so it can be fulfilled at a later time.
-        """ 
+        """
         self._check_kwargs(kwargs, ['amount', 'currency', 'merchant_reference'])
         return self._do_request(PRE, **kwargs)
 
@@ -245,22 +252,22 @@ class Gateway(object):
         """
         self._check_kwargs(kwargs, ['amount', 'currency', 'merchant_reference'])
         return self._do_request(REFUND, **kwargs)
-        
+
     def erp(self, **kwargs):
         self._check_kwargs(kwargs, ['amount', 'currency', 'merchant_reference'])
         return self._do_request(ERP, **kwargs)
-        
-    # "Historic" transaction types    
-        
-    def cancel(self, txn_reference): 
+
+    # "Historic" transaction types
+
+    def cancel(self, txn_reference):
         """
-        Cancel an AUTH or PRE transaction. 
+        Cancel an AUTH or PRE transaction.
 
         AUTH txns can only be cancelled before the end of the day when they
         are settled.
         """
         return self._do_request(CANCEL, txn_reference=txn_reference)
-    
+
     def fulfill(self, **kwargs):
         """
         Settle a previous PRE transaction.  The actual settlement will take place
@@ -268,7 +275,7 @@ class Gateway(object):
         """
         self._check_kwargs(kwargs, ['amount', 'currency', 'txn_reference', 'auth_code'])
         return self._do_request(FULFILL, **kwargs)
-    
+
     def txn_refund(self, **kwargs):
         """
         Refund against a specific transaction
