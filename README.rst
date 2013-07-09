@@ -264,6 +264,11 @@ Have fun!
 Changelog
 =========
 
+0.4.1
+-----
+* Handle bankcard dates passed as ``datetime.datetime`` instances instead of
+  strings.  This is a compatability fix for Oscar 0.6 development.
+
 0.4
 ---
 * Oscar 0.5 support
