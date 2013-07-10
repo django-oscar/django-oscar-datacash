@@ -88,7 +88,7 @@ class FraudResponse(models.Model):
     date_created = models.DateTimeField(auto_now_add=True)
 
     def __unicode__(self):
-        return u"<t3m %s (score: %s, recommendation)>" % (
+        return u"<t3m %s (score: %s, recommendation: %s)>" % (
             self.t3m_id, self.score, self.recommendation)
 
     @classmethod
