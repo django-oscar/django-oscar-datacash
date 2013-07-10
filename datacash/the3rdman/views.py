@@ -1,7 +1,6 @@
 from django.views import generic
 from django import http
 
-from . import callback
 from datacash import models
 
 

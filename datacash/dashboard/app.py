@@ -3,13 +3,13 @@ from django.contrib.admin.views.decorators import staff_member_required
 
 from oscar.core.application import Application
 
-from datacash.views import TransactionListView, TransactionDetailView
+from . import views
 
 
 class DatacashDashboardApplication(Application):
     name = None
-    list_view = TransactionListView
-    detail_view = TransactionDetailView
+    list_view = views.TransactionListView
+    detail_view = views.TransactionDetailView
 
     def get_urls(self):
         urlpatterns = patterns('',

@@ -144,7 +144,7 @@ Simply include the URLs in your ``urls.py``:
 
 .. code:: python
 
-    from datacash.app import application
+    from datacash.dashboard.app import application
 
     urlpatterns = patterns('',
         ...

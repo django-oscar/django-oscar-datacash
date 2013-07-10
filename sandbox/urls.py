@@ -7,7 +7,7 @@ from django.views.generic import TemplateView
 
 from apps.app import shop
 
-from datacash.app import application
+from datacash.dashboard.app import application
 
 admin.autodiscover()
 
