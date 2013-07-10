@@ -202,7 +202,9 @@ class Gateway(object):
             if key in kwargs:
                 self._create_element(doc, cv2avs, 'street_address%d' % n, kwargs[key])
         if 'postcode' in kwargs:
-            self._create_element(doc, cv2avs, 'postcode', kwargs['postcode'])
+            # Restrict size of postcode submitted
+            self._create_element(doc, cv2avs, 'postcode',
+                                 kwargs['postcode'][:9])
         if 'cvv' in kwargs:
             self._create_element(doc, cv2avs, 'cv2', kwargs['cvv'])
 
