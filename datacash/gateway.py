@@ -184,7 +184,12 @@ class Gateway(object):
         response_xml = self._fetch_response_xml(request_xml)
         logger.debug("Received response:\n %s" % response_xml)
 
-        return Response(request_xml, response_xml)
+        response = Response(request_xml, response_xml)
+        if response.is_successful():
+            logger.info("Response successful")
+        else:
+            logger.warning("Response unsuccessful")
+        return response
 
     def _add_cv2avs_elements(self, doc, card, kwargs):
         """
