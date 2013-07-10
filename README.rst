@@ -263,6 +263,11 @@ Have fun!
 
 Changelog
 =========
+
+0.5
+---
+* Add support for The3rdMan fraud screening 
+
 0.4.2
 -----
 * Fix mis-handling of datetimes introduced in 0.4.1
