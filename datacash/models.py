@@ -79,7 +79,7 @@ class FraudResponse(models.Model):
     t3m_id = models.CharField(max_length=128, unique=True)
     score = models.IntegerField()
 
-    RELEASE, HOLD, REJECT, UNDER_INVESTIGATION = range(0, 4)
+    RELEASE, HOLD, REJECT, UNDER_INVESTIGATION = 0, 1, 2, 9
     recommendation = models.IntegerField()
     message_digest = models.CharField(max_length=128, blank=True)
     raw_response = models.TextField()
