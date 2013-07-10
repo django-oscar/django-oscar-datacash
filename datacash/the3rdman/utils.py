@@ -23,15 +23,6 @@ def build_data_dict(request=None, user=None, email=None, order_number=None,
         'account_info': {},  # Not implemented for now
         'order_info': build_order_info(basket),
     }
-
-    # Add callback URL
-    if request:
-        scheme = 'https' if request.is_secure() else 'http'
-        domain = request.META['HTTP_HOST']
-        path = reverse('datacash-3rdman-callback')
-        data['callback_url'] = '%s://%s%s' % (
-            scheme, domain, path)
-
     return data
 
 

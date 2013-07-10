@@ -34,15 +34,16 @@ def add_fraud_fields(doc=None, element=None, customer_info=None, delivery_info=N
     if element is None:
         element = doc
 
-    # Request a realtime response
-    envelope = create_element(
-        doc, element, 'The3rdMan', attributes={'type': 'realtime'})
-
-    # Realtime details
     if 'callback_url' in kwargs:
+        # Realtime details
+        envelope = create_element(
+            doc, element, 'The3rdMan', attributes={'type': 'realtime'})
         callback_format = kwargs.get('callback_format', 'XML')
         callback_url = kwargs['callback_url']
         add_realtime_information(doc, envelope, callback_format, callback_url)
+    else:
+        envelope = create_element(
+            doc, element, 'The3rdMan')
 
     add_customer_information(doc, envelope, customer_info)
     add_delivery_address(doc, envelope, delivery_info)
