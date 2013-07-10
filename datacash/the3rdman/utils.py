@@ -3,8 +3,8 @@ from django.db.models import get_model
 Order = get_model('order', 'Order')
 
 
-def build_data_dict(request=None, user=None, order_number=None, basket=None,
-                    shipping_address=None, billing_address=None):
+def build_data_dict(request=None, user=None, email=None, order_number=None,
+                    basket=None, shipping_address=None, billing_address=None):
     """
     Build a dict of the fields that can be passed as 3rdMan data
     """
@@ -24,7 +24,10 @@ def build_data_dict(request=None, user=None, order_number=None, basket=None,
     }
 
 
-def build_customer_info(request, user, order_number, shipping_address):
+    return data
+
+
+def build_customer_info(request, user, email, order_number, shipping_address):
     # We only use fields denoted 'R' (for Retail)
     payload = {}
 
@@ -33,6 +36,9 @@ def build_customer_info(request, user, order_number, shipping_address):
         payload['email'] = user.email
         payload['forename'] = user.first_name
         payload['surname'] = user.last_name
+
+    if email:
+        payload['email'] = email
 
     if shipping_address:
         payload['delivery_forename'] = shipping_address.first_name

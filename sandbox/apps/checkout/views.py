@@ -70,9 +70,13 @@ class PaymentDetailsView(OscarPaymentDetailsView):
         # raised and handled)
         facade = Facade()
 
-        # Use The3rdMan
+        # Use The3rdMan - so build a dict of data to pass
+        email = None
+        if not self.request.user.is_authenticated():
+            email = self.checkout_session.get_guest_email()
         fraud_data = the3rdman.build_data_dict(
             request=self.request,
+            email=email,
             order_number=order_number,
             shipping_address=self.get_shipping_address())
 
