@@ -3,6 +3,8 @@ from xml.dom.minidom import parseString
 
 from django.db import models
 
+from .the3rdman import signals
+
 
 def prettify_xml(xml_str):
     xml_str = re.sub(r'\s*\n\s*', '', xml_str)
@@ -114,6 +116,11 @@ class FraudResponse(models.Model):
             recommendation=tag_text(doc, 'recommendation'),
             message_digest=tag_text(doc, 'message_digest'),
             raw_response=payload)
+
+        # Raise signal so other processes can update orders based on this fraud
+        # response.
+        signals.response_received.send_robust(sender=cls, response=response)
+
         return response
 
     @property
