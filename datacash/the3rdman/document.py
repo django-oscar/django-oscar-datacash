@@ -32,7 +32,7 @@ def add_fraud_fields(doc=None, element=None, customer_info=None, delivery_info=N
     if doc is None:
         doc = Document()
     if element is None:
-        element = Document()
+        element = doc
 
     # Request a realtime response
     envelope = create_element(

@@ -50,7 +50,7 @@ if not settings.configured:
             DEBUG=False,
             SITE_ID=1,
             ROOT_URLCONF='tests.urls',
-            NOSE_ARGS=['-s', '--with-spec'],
+            NOSE_ARGS=['-s'],
             HAYSTACK_CONNECTIONS={
                 'default': {
                     'ENGINE': 'haystack.backends.simple_backend.SimpleEngine',
