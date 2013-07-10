@@ -4,7 +4,7 @@ from django.test import TestCase
 from oscar_testsupport import factories
 from oscar.apps.basket.models import Basket
 
-from datacash import the3rdman
+from datacash import the3rdman, models
 
 
 class TestRequestGeneration(TestCase):

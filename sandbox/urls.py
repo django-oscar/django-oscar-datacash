@@ -15,6 +15,7 @@ urlpatterns = patterns('',
     (r'^admin/', include(admin.site.urls)),
     # Include dashboard URLs
     (r'^dashboard/datacash/', include(application.urls)),
+    (r'^datacash/', include('datacash.urls')),
     (r'', include(shop.urls)),
 )
 if settings.DEBUG:

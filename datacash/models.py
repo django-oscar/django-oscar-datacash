@@ -62,3 +62,48 @@ class OrderTransaction(models.Model):
     @property
     def pretty_response_xml(self):
         return prettify_xml(self.response_xml)
+
+
+class FraudResponse(models.Model):
+    aggregator_identifier = models.CharField(max_length=15, blank=True)
+    merchant_identifier = models.CharField(max_length=15)
+    merchant_order_ref = models.CharField(max_length=250, db_index=True)
+    t3m_id = models.CharField(max_length=128, unique=True)
+    score = models.IntegerField()
+
+    RELEASE, HOLD, REJECT, UNDER_INVESTIGATION = range(0, 4)
+    recommendation = models.IntegerField()
+    message_digest = models.CharField(max_length=128, blank=True)
+    raw_response = models.TextField()
+    date_created = models.DateTimeField(auto_now_add=True)
+
+    def __unicode__(self):
+        return u"<t3m %s (score: %s, recommendation)>" % (
+            self.t3m_id, self.score, self.recommendation)
+
+    @classmethod
+    def create_from_xml(cls, payload):
+        """
+        Create a fraud response instance from an XML payload
+        """
+        # Helper function for text extraction
+        def tag_text(doc, tag_name):
+            try:
+                ele = doc.getElementsByTagName(tag_name)[0]
+            except IndexError:
+                return ''
+            if ele.firstChild:
+                return ele.firstChild.data
+            return ''
+
+        doc = parseString(payload)
+        response = cls.objects.create(
+            aggregator_identifier=tag_text(doc, 'aggregator_identifier'),
+            merchant_identifier=tag_text(doc, 'merchant_identifier'),
+            merchant_order_ref=tag_text(doc, 'merchant_order_ref'),
+            t3m_id=tag_text(doc, 't3m_id'),
+            score=tag_text(doc, 'score'),
+            recommendation=tag_text(doc, 'recommendation'),
+            message_digest=tag_text(doc, 'message_digest'),
+            raw_response=payload)
+        return response

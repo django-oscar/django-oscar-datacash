@@ -53,7 +53,7 @@ def add_fraud_fields(doc=None, element=None, customer_info=None, delivery_info=N
 
 
 def add_realtime_information(doc, ele, format, url):
-    rt_ele = create_element(doc, envelope, 'Realtime')
+    rt_ele = create_element(doc, ele, 'Realtime')
     create_element(doc, rt_ele, 'real_time_callback_format', format)
     create_element(doc, rt_ele, 'real_time_callback', url)
 

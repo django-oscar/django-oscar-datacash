@@ -88,21 +88,23 @@ class Facade(object):
         merchant_ref = self.merchant_reference(order_number, gateway.PRE)
         address_data = self.extract_address_data(billing_address)
         if bankcard:
-            response = self.gateway.pre(card_number=bankcard.card_number,
-                                        expiry_date=bankcard.expiry_date,
-                                        amount=amount,
-                                        currency=self.currency,
-                                        merchant_reference=merchant_ref,
-                                        ccv=bankcard.ccv,
-                                        the3rdman_data=the3rdman_data,
-                                        **address_data)
+            response = self.gateway.pre(
+                card_number=bankcard.card_number,
+                expiry_date=bankcard.expiry_date,
+                amount=amount,
+                currency=self.currency,
+                merchant_reference=merchant_ref,
+                ccv=bankcard.ccv,
+                the3rdman_data=the3rdman_data,
+                **address_data)
         elif txn_reference:
-            response = self.gateway.pre(amount=amount,
-                                        currency=self.currency,
-                                        merchant_reference=merchant_ref,
-                                        previous_txn_reference=txn_reference,
-                                        the3rdman_data=the3rdman_data,
-                                        **address_data)
+            response = self.gateway.pre(
+                amount=amount,
+                currency=self.currency,
+                merchant_reference=merchant_ref,
+                previous_txn_reference=txn_reference,
+                the3rdman_data=the3rdman_data,
+                **address_data)
         else:
             raise ValueError("You must specify either a bankcard or a previous txn reference")
         return self.handle_response(gateway.PRE, order_number, amount, response)

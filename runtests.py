@@ -1,9 +1,11 @@
 #!/usr/bin/env python
 import sys
 from optparse import OptionParser
+import logging
 
 from django.conf import settings
 
+logging.disable(logging.CRITICAL)
 
 if not settings.configured:
     datacash_settings = {}
@@ -47,6 +49,7 @@ if not settings.configured:
                 ] + get_core_apps(),
             DEBUG=False,
             SITE_ID=1,
+            ROOT_URLCONF='tests.urls',
             NOSE_ARGS=['-s', '--with-spec'],
             HAYSTACK_CONNECTIONS={
                 'default': {

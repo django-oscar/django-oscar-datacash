@@ -1,4 +1,5 @@
 from django.db.models import get_model
+from django.core.urlresolvers import reverse
 
 Order = get_model('order', 'Order')
 
@@ -12,9 +13,9 @@ def build_data_dict(request=None, user=None, email=None, order_number=None,
         user = request.user
     if request and basket is None:
         basket = request.basket
-    return {
+    data = {
         'customer_info': build_customer_info(
-            request, user, order_number, shipping_address),
+            request, user, email, order_number, shipping_address),
         'delivery_info': build_delivery_info(
             shipping_address),
         'billing_info': build_billing_info(
@@ -23,6 +24,13 @@ def build_data_dict(request=None, user=None, email=None, order_number=None,
         'order_info': build_order_info(basket),
     }
 
+    # Add callback URL
+    if request:
+        scheme = 'https' if request.is_secure() else 'http'
+        domain = request.META['HTTP_HOST']
+        path = reverse('datacash-3rdman-callback')
+        data['callback_url'] = '%s://%s%s' % (
+            scheme, domain, path)
 
     return data
 
