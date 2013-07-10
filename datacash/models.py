@@ -134,3 +134,13 @@ class FraudResponse(models.Model):
     @property
     def rejected(self):
         return self.recommendation == self.REJECTED
+
+    @property
+    def order_number(self):
+        """
+        Return the order number from the original transaction.
+
+        This assumes the merchant ref was generated using the datacash.facade
+        class
+        """
+        return self.merchant_order_ref.split("_")[0]
