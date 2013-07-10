@@ -1,7 +1,11 @@
+import logging
+
 from django.views import generic
 from django import http
 
 from datacash import models
+
+logger = logging.getLogger('datacash.the3rdman')
 
 
 class CallbackView(generic.View):
@@ -16,8 +20,12 @@ class CallbackView(generic.View):
             # Create a fraud response object.  Other processes should listen
             # to the post create signal in order to hook fraud processing into
             # this order pipeline.
-            models.FraudResponse.create_from_xml(request.body)
+            response = models.FraudResponse.create_from_xml(request.body)
         except Exception, e:
+            logger.error("Error raised handling response:\n%s", request.body)
+            logger.exception(e)
             return http.HttpResponseServerError("error")
         else:
+            logger.info("Successful response received with merchant ref %s",
+                        response.merchant_order_ref)
             return http.HttpResponse("ok")
