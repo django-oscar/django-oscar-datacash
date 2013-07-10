@@ -63,6 +63,14 @@ class OrderTransaction(models.Model):
     def pretty_response_xml(self):
         return prettify_xml(self.response_xml)
 
+    @property
+    def accepted(self):
+        return self.status == 1
+
+    @property
+    def declined(self):
+        return self.status == 7
+
 
 class FraudResponse(models.Model):
     aggregator_identifier = models.CharField(max_length=15, blank=True)
