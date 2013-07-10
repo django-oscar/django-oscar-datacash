@@ -115,3 +115,15 @@ class FraudResponse(models.Model):
             message_digest=tag_text(doc, 'message_digest'),
             raw_response=payload)
         return response
+
+    @property
+    def on_hold(self):
+        return self.recommendation == self.HOLD
+
+    @property
+    def released(self):
+        return self.recommendation == self.RELEASE
+
+    @property
+    def rejected(self):
+        return self.recommendation == self.REJECTED

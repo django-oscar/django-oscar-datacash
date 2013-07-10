@@ -256,6 +256,10 @@ OSCAR_DASHBOARD_NAVIGATION.append(
                 'label': 'Transactions',
                 'url_name': 'datacash-transaction-list',
             },
+            {
+                'label': 'Fraud responses',
+                'url_name': 'datacash-fraud-response-list',
+            },
         ]
     })
 

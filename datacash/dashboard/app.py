@@ -10,6 +10,7 @@ class DatacashDashboardApplication(Application):
     name = None
     list_view = views.TransactionListView
     detail_view = views.TransactionDetailView
+    fraud_list_view = views.FraudResponseListView
 
     def get_urls(self):
         urlpatterns = patterns('',
@@ -17,6 +18,8 @@ class DatacashDashboardApplication(Application):
                 name='datacash-transaction-list'),
             url(r'^transactions/(?P<pk>\d+)/$', self.detail_view.as_view(),
                 name='datacash-transaction-detail'),
+            url(r'^fraud-responses/$', self.fraud_list_view.as_view(),
+                name='datacash-fraud-response-list'),
         )
         return self.post_process_urls(urlpatterns)
 

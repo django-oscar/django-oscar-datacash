@@ -1,0 +1,53 @@
+{% extends 'dashboard/layout.html' %}
+{% load currency_filters %}
+{% load i18n %}
+
+{% block title %}
+    {% trans "Fraud responses" %} | {{ block.super }}
+{% endblock %}
+
+{% block breadcrumbs %}
+    <ul class="breadcrumb">
+        <li>
+            <a href="{% url dashboard:index %}">{% trans "Dashboard" %}</a>
+            <span class="divider">/</span>
+        </li>
+        <li class="active">{% trans "Fraud responses" %}</li>
+    </ul>
+{% endblock %}
+
+{% block headertext %}
+    {% trans "Fraud responses" %}
+{% endblock %}
+
+{% block dashboard_content %}
+    {% if responses %}
+        <table class="table table-bordered">
+            <thead>
+                <tr>
+                    <th>{% trans "The3rdMan ID" %}</th>
+                    <th>{% trans "Aggregator ID" %}</th>
+                    <th>{% trans "Merchant ID" %}</th>
+                    <th>{% trans "Score" %}</th>
+                    <th>{% trans "Recommendation" %}</th>
+                    <th>{% trans "Date receieved" %}</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for r in responses %}
+                <tr {% if r.released %}class="success"{% elif txn.hold %}class="warning"{% else %}class="error"{% endif %}>
+                    <td>{{ r.t3m_id }}</td>
+                    <td>{{ r.aggregator_identifier|default:"-" }}</td>
+                    <td>{{ r.merchant_identifier }}</td>
+                    <td>{{ r.score }}</td>
+                    <td>{{ r.recommendation }}</td>
+                    <td>{{ txn.date_created }}</td>
+                </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+    {% include "partials/pagination.html" %}
+{% else %}
+    <p>{% trans "No fraud responses have been made yet." %}</p>
+{% endif %}
+{% endblock dashboard_content %}
