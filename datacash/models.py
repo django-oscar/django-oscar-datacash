@@ -88,7 +88,7 @@ class FraudResponse(models.Model):
     date_created = models.DateTimeField(auto_now_add=True)
 
     def __unicode__(self):
-        return u"<t3m %s (score: %s, recommendation: %s)>" % (
+        return u"t3m ID %s (score: %s, recommendation: %s)" % (
             self.t3m_id, self.score, self.recommendation)
 
     class Meta:
@@ -115,8 +115,8 @@ class FraudResponse(models.Model):
             merchant_identifier=tag_text(doc, 'merchant_identifier'),
             merchant_order_ref=tag_text(doc, 'merchant_order_ref'),
             t3m_id=tag_text(doc, 't3m_id'),
-            score=tag_text(doc, 'score'),
-            recommendation=tag_text(doc, 'recommendation'),
+            score=int(tag_text(doc, 'score')),
+            recommendation=int(tag_text(doc, 'recommendation')),
             message_digest=tag_text(doc, 'message_digest'),
             raw_response=payload)
 
