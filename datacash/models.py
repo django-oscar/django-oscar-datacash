@@ -91,6 +91,9 @@ class FraudResponse(models.Model):
         return u"<t3m %s (score: %s, recommendation: %s)>" % (
             self.t3m_id, self.score, self.recommendation)
 
+    class Meta:
+        ordering = ('-date_created',)
+
     @classmethod
     def create_from_xml(cls, payload):
         """
