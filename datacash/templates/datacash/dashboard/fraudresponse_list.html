@@ -27,6 +27,7 @@
                 <tr>
                     <th>{% trans "The3rdMan ID" %}</th>
                     <th>{% trans "Merchant ref" %}</th>
+                    <th>{% trans "Order" %}</th>
                     <th>{% trans "Aggregator ID" %}</th>
                     <th>{% trans "Merchant ID" %}</th>
                     <th>{% trans "Score" %}</th>
@@ -39,6 +40,7 @@
                 <tr {% if r.released %}class="success"{% elif txn.hold %}class="warning"{% else %}class="error"{% endif %}>
                     <td>{{ r.t3m_id }}</td>
                     <td>{{ r.merchant_order_ref }}</td>
+                    <td><a href="{% url dashboard:order-detail r.order_number %}">{{ r.order_number }}</a></td>
                     <td>{{ r.aggregator_identifier|default:"-" }}</td>
                     <td>{{ r.merchant_identifier }}</td>
                     <td>{{ r.score }}</td>
