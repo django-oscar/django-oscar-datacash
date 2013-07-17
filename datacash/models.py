@@ -133,7 +133,7 @@ class FraudResponse(models.Model):
 
     @property
     def rejected(self):
-        return self.recommendation == self.REJECTED
+        return self.recommendation == self.REJECT
 
     @property
     def order_number(self):
