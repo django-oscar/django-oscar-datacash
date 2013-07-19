@@ -39,11 +39,22 @@ class OrderTransaction(models.Model):
     class Meta:
         ordering = ('-date_created',)
 
+    def _replace_credit_card_number(self, matchobj):
+        """ Credit card number can be from 13 to 19 digits long. Shown only
+        last 4 of them and replace others with 'X' still keeping
+        number of digits """
+        return "<%(element)s>%(hidden)s%(last4)s</%(element)s>" % {
+            'element': matchobj.group(1),
+            'hidden': "X" * len(matchobj.group(2)),
+            'last4': matchobj.group(3),
+        }
+
     def save(self, *args, **kwargs):
         # Ensure sensitive data isn't saved
         if not self.pk:
-            cc_regex = re.compile(r'\d{12}')
-            self.request_xml = cc_regex.sub('XXXXXXXXXXXX', self.request_xml)
+            cc_regex = re.compile(r'<(pan|alt_pan)>(\d+)(\d{4})</\1>')
+            self.request_xml = cc_regex.sub(self._replace_credit_card_number,
+                                            self.request_xml)
             ccv_regex = re.compile(r'<cv2>\d+</cv2>')
             self.request_xml = ccv_regex.sub('<cv2>XXX</cv2>', self.request_xml)
             pw_regex = re.compile(r'<password>.*</password>')

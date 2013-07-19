@@ -78,3 +78,22 @@ SAMPLE_SUCCESSFUL_FULFILL_RESPONSE = """<?xml version="1.0" encoding="UTF-8"?>
     <time>1338297619</time>
 </Response>"""
 
+SAMPLE_DATACASH_REFERENCE_REQUEST = """<?xml version="1.0" ?>
+<Request>
+    <Authentication>
+        <client>99001381</client>
+        <password>samplepassword</password>
+    </Authentication>
+    <Transaction>
+        <HistoricTxn>
+            <reference>1234567890124209</reference>
+            <method>fulfill</method>
+            <authcode>747595</authcode>
+        </HistoricTxn>
+        <TxnDetails>
+            <merchantreference>100001_FULFILL_1_6664</merchantreference>
+            <amount>767.00</amount>
+            <capturemethod>ecomm</capturemethod>
+        </TxnDetails>
+    </Transaction>
+</Request>"""

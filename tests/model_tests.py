@@ -57,3 +57,15 @@ class TransactionModelTests(TestCase, XmlTestingMixin):
                                               request_xml=fixtures.SAMPLE_REQUEST,
                                               response_xml=fixtures.SAMPLE_RESPONSE)
         self.assertXmlElementEquals(txn.request_xml, 'XXXXXXXXXXXX0004', 'Request.Transaction.CardTxn.Card.pan')
+
+    def test_datacash_refrences_are_not_obfuscated(self):
+        txn = OrderTransaction.objects.create(order_number='1000',
+                                              method='auth',
+                                              datacash_reference='3000000088888888',
+                                              merchant_reference='100001_FULFILL_1_6664',
+                                              amount=D('767.00'),
+                                              status=1,
+                                              reason='ACCEPTED',
+                                              request_xml=fixtures.SAMPLE_DATACASH_REFERENCE_REQUEST,
+                                              response_xml=fixtures.SAMPLE_RESPONSE)
+        self.assertXmlElementEquals(txn.request_xml, '1234567890124209', 'Request.Transaction.HistoricTxn.reference')
