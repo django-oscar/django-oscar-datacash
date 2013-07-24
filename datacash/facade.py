@@ -52,9 +52,11 @@ class Facade(object):
     def get_friendly_error_message(self, response):
         # TODO: expand this dict to handle the most common errors
         errors = {
+            56: ('This transaction was submitted too soon after the '
+                 'previous one.  Please wait for a minute then try again'),
             19: 'Unable to fulfill transaction',
         }
-        default_msg =  'An error occurred when communicating with the payment gateway.'
+        default_msg = 'An error occurred when communicating with the payment gateway.'
         return errors.get(response.status, default_msg)
 
     def extract_address_data(self, address):
