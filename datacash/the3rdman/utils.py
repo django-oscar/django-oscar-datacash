@@ -47,6 +47,9 @@ def build_customer_info(request, user, email, order_number, shipping_address):
 
     if request and 'REMOTE_ADDR' in request.META:
         payload['ip_address'] = request.META['REMOTE_ADDR']
+    # We let HTTP_X_FORWARDED_FOR take precedence if it exists
+    if request and 'HTTP_X_FORWARDED_FOR' in request.META:
+        payload['ip_address'] = request.META['HTTP_X_FORWARDED_FOR']
 
     if order_number:
         payload['order_number'] = order_number
