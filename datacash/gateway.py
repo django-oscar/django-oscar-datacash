@@ -215,7 +215,7 @@ class Gateway(object):
         ele = doc.createElement(tag)
         parent.appendChild(ele)
         if value:
-            text = doc.createTextNode(str(value))
+            text = doc.createTextNode(u"%s" % value)
             ele.appendChild(text)
         if attributes:
             [ele.setAttribute(k, v) for k,v in attributes.items()]

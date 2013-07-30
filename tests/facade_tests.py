@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 from decimal import Decimal as D
 import math
 import time
@@ -26,6 +27,17 @@ class FacadeTests(TestCase, XmlTestingMixin):
 
     def setUp(self):
         self.facade = Facade()
+
+    def test_unicode_handling(self):
+        self.facade.gateway._fetch_response_xml = Mock(return_value=fixtures.SAMPLE_RESPONSE)
+        card = Bankcard('1000350000000007', '10/13', cvv='345')
+        self.facade.pre_authorise(
+            '1234', D('10.00'), card,
+            the3rdman_data={
+                'customer_info': {
+                    'surname': u'Smörgåsbord'
+                }
+            })
 
     def test_second_fulfill_has_merchant_ref(self):
         # Initial pre-auth
