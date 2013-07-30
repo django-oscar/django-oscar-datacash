@@ -8,7 +8,7 @@ from .the3rdman import signals
 
 def prettify_xml(xml_str):
     xml_str = re.sub(r'\s*\n\s*', '', xml_str)
-    ugly = parseString(xml_str).toprettyxml(indent='    ')
+    ugly = parseString(xml_str.encode('utf8')).toprettyxml(indent='    ')
     regex = re.compile(r'>\n\s+([^<>\s].*?)\n\s+</', re.DOTALL)
     return regex.sub('>\g<1></', ugly)
 
