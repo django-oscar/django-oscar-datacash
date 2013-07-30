@@ -6,7 +6,7 @@ import datetime
 
 from oscar.apps.payment.exceptions import GatewayError
 
-from . import the3rdman
+from . import the3rdman, xmlutils
 
 logger = logging.getLogger('datacash')
 
@@ -212,14 +212,7 @@ class Gateway(object):
         """
         Creates an XML element
         """
-        ele = doc.createElement(tag)
-        parent.appendChild(ele)
-        if value:
-            text = doc.createTextNode(u"%s" % value)
-            ele.appendChild(text)
-        if attributes:
-            [ele.setAttribute(k, v) for k,v in attributes.items()]
-        return ele
+        return xmlutils.create_element(doc, parent, tag, value, attributes)
 
     def _check_kwargs(self, kwargs, required_keys):
         for key in required_keys:
