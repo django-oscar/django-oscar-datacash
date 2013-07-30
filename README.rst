@@ -6,6 +6,8 @@ This package provides integration with the payment gateway, DataCash_.  It is de
 work seamlessly with the e-commerce framework `django-oscar`_ but can be used without 
 Oscar.
 
+It also supports batch fraud screeing using The3rdMan.
+
 .. _DataCash: http://www.datacash.com/
 .. _`django-oscar`: https://github.com/tangentlabs/django-oscar
 
@@ -163,6 +165,31 @@ For instance, the default Datacash set-up won't include:
 
 When investigating problems, make sure your Datacash account is set-up
 correctly.
+
+Integration with The3rdMan
+--------------------------
+
+Using batch fraud services requires submitting a dict of relevant data as part
+of the initial transaction.  A helper method is provided that will extract all
+it needs from Oscar's models:
+
+.. code:: python
+
+    from datacash.the3rdman import build_data_dict
+
+    fraud_data = build_data_dict(
+        request=request,
+        order_number='1234',
+        basket=request.basket,
+        email=email
+        shipping_address=shipping_address,
+        billing_addres=billing_address)
+
+then pass this data as a named argument when creating the transaction:
+
+.. code:: python
+
+    ref = Facade().pre_authorise(..., the3rdman_data=fraud_data)
 
 
 Packages structure
