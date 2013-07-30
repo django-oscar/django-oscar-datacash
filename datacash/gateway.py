@@ -94,7 +94,7 @@ class Gateway(object):
         conn = httplib.HTTPSConnection(self._host, 443, timeout=30)
         headers = {"Content-type": "application/xml",
                    "Accept": ""}
-        conn.request("POST", self._path, request_xml, headers)
+        conn.request("POST", self._path, request_xml.encode('utf8'), headers)
         response = conn.getresponse()
         response_xml = response.read()
         if response.status != httplib.OK:
