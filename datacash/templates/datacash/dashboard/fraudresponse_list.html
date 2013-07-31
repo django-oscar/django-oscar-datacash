@@ -37,14 +37,14 @@
             </thead>
             <tbody>
                 {% for r in responses %}
-                <tr {% if r.released %}class="success"{% elif txn.hold %}class="warning"{% else %}class="error"{% endif %}>
+                <tr {% if r.released %}class="success"{% elif r.on_hold %}class="warning"{% else %}class="error"{% endif %}>
                     <td>{{ r.t3m_id }}</td>
                     <td>{{ r.merchant_order_ref }}</td>
                     <td><a href="{% url dashboard:order-detail r.order_number %}">{{ r.order_number }}</a></td>
                     <td>{{ r.aggregator_identifier|default:"-" }}</td>
                     <td>{{ r.merchant_identifier }}</td>
                     <td>{{ r.score }}</td>
-                    <td>{{ r.recommendation }}</td>
+                    <td>{{ r.recommendation_text }}</td>
                     <td>{{ r.date_created }}</td>
                 </tr>
             {% endfor %}

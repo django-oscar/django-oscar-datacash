@@ -174,3 +174,13 @@ class FraudResponse(models.Model):
         class
         """
         return self.merchant_order_ref.split("_")[0]
+
+    @property
+    def recommendation_text(self):
+        mapping = {
+            self.RELEASE: "Released",
+            self.HOLD: "On hold",
+            self.REJECT: "Rejected",
+            self.UNDER_INVESTIGATION: "Under investigation",
+        }
+        return mapping.get(self.recommendation, "Unknown")
