@@ -169,7 +169,7 @@ correctly.
 Integration with The3rdMan
 --------------------------
 
-Using batch fraud services requires submitting a dict of relevant data as part
+Using realtime fraud services requires submitting a dict of relevant data as part
 of the initial transaction.  A helper method is provided that will extract all
 it needs from Oscar's models:
 
@@ -191,6 +191,27 @@ then pass this data as a named argument when creating the transaction:
 
     ref = Facade().pre_authorise(..., the3rdman_data=fraud_data)
 
+To receive the callback, include the following in your ``urls.py``:
+
+.. code:: python
+
+    urlpatterns = patterns('',
+        ...
+        (r'^datacash/', include('datacash.urls')),
+        ...
+    )
+
+When a fraud response is received, a custom signal is raised which your client
+code should listen for.  Example:
+
+.. code:: python
+
+    from django.dispatch import receiver
+    from datacash.the3rdman import signals
+
+    @receiver(signals.response_received)
+    def handle_fraud_response(sender, response, **kwargs):
+        # Do something with response
 
 Packages structure
 ==================
