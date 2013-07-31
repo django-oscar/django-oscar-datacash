@@ -1,5 +1,6 @@
 import re
 from xml.dom.minidom import parseString
+import urlparse
 
 from django.db import models
 
@@ -106,7 +107,7 @@ class FraudResponse(models.Model):
         ordering = ('-date_created',)
 
     @classmethod
-    def create_from_xml(cls, payload):
+    def create_from_xml(cls, xml_string):
         """
         Create a fraud response instance from an XML payload
         """
@@ -120,16 +121,31 @@ class FraudResponse(models.Model):
                 return ele.firstChild.data
             return ''
 
-        doc = parseString(payload)
+        doc = parseString(xml_string)
+        return cls.create_from_payload(xml_string, doc, tag_text)
+
+    @classmethod
+    def create_from_querystring(cls, query):
+        """
+        Create a fraud response instance from a querystring payload
+        """
+        def extract(data, key):
+            return data.get(key, [""])[0]
+
+        data = urlparse.parse_qs(query)
+        return cls.create_from_payload(query, data, extract)
+
+    @classmethod
+    def create_from_payload(cls, raw, payload, extract_fn):
         response = cls.objects.create(
-            aggregator_identifier=tag_text(doc, 'aggregator_identifier'),
-            merchant_identifier=tag_text(doc, 'merchant_identifier'),
-            merchant_order_ref=tag_text(doc, 'merchant_order_ref'),
-            t3m_id=tag_text(doc, 't3m_id'),
-            score=int(tag_text(doc, 'score')),
-            recommendation=int(tag_text(doc, 'recommendation')),
-            message_digest=tag_text(doc, 'message_digest'),
-            raw_response=payload)
+            aggregator_identifier=extract_fn(payload, 'aggregator_identifier'),
+            merchant_identifier=extract_fn(payload, 'merchant_identifier'),
+            merchant_order_ref=extract_fn(payload, 'merchant_order_ref'),
+            t3m_id=extract_fn(payload, 't3m_id'),
+            score=int(extract_fn(payload, 'score')),
+            recommendation=int(extract_fn(payload, 'recommendation')),
+            message_digest=extract_fn(payload, 'message_digest'),
+            raw_response=raw)
 
         # Raise signal so other processes can update orders based on this fraud
         # response.

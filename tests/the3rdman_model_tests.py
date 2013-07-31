@@ -2,7 +2,7 @@ from django.test import TestCase
 
 from datacash import models
 
-RESPONSE = """<?xml version="1.0"?>
+XML_RESPONSE = """<?xml version="1.0"?>
 <RealTimeResponse xmlns="T3MCallback">
     <aggregator_identifier/>
     <merchant_identifier>5567</merchant_identifier>
@@ -13,10 +13,14 @@ RESPONSE = """<?xml version="1.0"?>
     <message_digest></message_digest>
 </RealTimeResponse>"""
 
+QUERY_RESPONSE = "aggregator_identifier=&merchant_identifier=32195&merchant_order_ref=100032&t3m_id=1701673332&score=114&recommendation=2&message_digest=87d81ea49035fe2f8d59ceea3f16b1f43744701c"
+
+
 def stub_response(score=0, recommendation=0):
-    return RESPONSE % {
+    return XML_RESPONSE % {
         'score': score,
         'recommendation': recommendation}
+
 
 class TestFraudResponseModel(TestCase):
 
@@ -33,4 +37,11 @@ class TestFraudResponseModel(TestCase):
     def test_recognises_reject_response(self):
         xml = stub_response(recommendation=2)
         response = models.FraudResponse.create_from_xml(xml)
+        self.assertTrue(response.rejected)
+
+
+class TestFormURLEncodedResponse(TestCase):
+
+    def test_for_smoke(self):
+        response = models.FraudResponse.create_from_querystring(QUERY_RESPONSE)
         self.assertTrue(response.rejected)
