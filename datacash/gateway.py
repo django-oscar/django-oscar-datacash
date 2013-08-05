@@ -205,8 +205,8 @@ class Gateway(object):
             # Restrict size of postcode submitted
             self._create_element(doc, cv2avs, 'postcode',
                                  kwargs['postcode'][:9])
-        if 'cvv' in kwargs:
-            self._create_element(doc, cv2avs, 'cv2', kwargs['cvv'])
+        if 'ccv' in kwargs:
+            self._create_element(doc, cv2avs, 'cv2', kwargs['ccv'])
 
     def _create_element(self, doc, parent, tag, value=None, attributes=None):
         """
