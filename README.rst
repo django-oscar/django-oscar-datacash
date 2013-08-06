@@ -311,6 +311,9 @@ Have fun!
 
 Changelog
 =========
+0.5.1
+-----
+* Adjust how the response type of callback is determined
 
 0.5
 ---

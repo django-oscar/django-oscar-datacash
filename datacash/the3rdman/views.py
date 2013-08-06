@@ -16,15 +16,16 @@ class CallbackView(generic.View):
     """
 
     def post(self, request, *args, **kwargs):
-        content_type = request.META['CONTENT_TYPE']
+        # Create a fraud response object.  Other processes should listen
+        # to the post create signal in order to hook fraud processing into
+        # this order pipeline.
         try:
-            # Create a fraud response object.  Other processes should listen
-            # to the post create signal in order to hook fraud processing into
-            # this order pipeline.
-            if content_type == 'application/x-www-form-urlencoded':
-                response = models.FraudResponse.create_from_querystring(request.body)
-            else:
+            # Datacash send both XML and query string with the same content
+            # type header :( so we have to check for XML syntax.
+            if '<?xml' in request.body:
                 response = models.FraudResponse.create_from_xml(request.body)
+            else:
+                response = models.FraudResponse.create_from_querystring(request.body)
         except Exception, e:
             logger.error("Error raised handling response:\n%s", request.body)
             logger.exception(e)
