@@ -65,6 +65,10 @@ class Response(object):
         return self.response_xml
 
     @property
+    def datacash_reference(self):
+        return self.data['datacash_reference']
+
+    @property
     def status(self):
         if 'status' in self.data and self.data['status'] is not None:
             return int(self.data['status'])
@@ -177,18 +181,24 @@ class Gateway(object):
     def _do_request(self, method, **kwargs):
         amount = kwargs.get('amount', '')
         merchant_ref = kwargs.get('merchant_reference', '')
-        logger.info("Performing %s request - amount: %s, merchant_ref: %s" % (
-            method, amount, merchant_ref))
+        logger.info("Merchant ref %s - performing %s request for amount: %s",
+                    merchant_ref, method, amount)
 
         request_xml = self._build_request_xml(method, **kwargs)
+        logger.debug("Merchant ref %s - request:\n %s",
+                     merchant_ref, request_xml)
+
         response_xml = self._fetch_response_xml(request_xml)
-        logger.debug("Received response:\n %s" % response_xml)
+        logger.debug("Merchant ref %s - received response:\n %s",
+                     merchant_ref, response_xml)
 
         response = Response(request_xml, response_xml)
         if response.is_successful():
-            logger.info("Response successful")
+            logger.info("Merchant ref %s - response successful, Datacash ref: %s",
+                        merchant_ref, response.datacash_reference)
         else:
-            logger.warning("Response unsuccessful")
+            logger.warning("Merchant ref %s - response unsuccessful, Datacash ref",
+                           merchant_ref, response.datacash_reference)
         return response
 
     def _add_cv2avs_elements(self, doc, card, kwargs):
