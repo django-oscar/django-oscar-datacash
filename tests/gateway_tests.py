@@ -1,17 +1,9 @@
 from decimal import Decimal as D
-import math
-import time
 from mock import Mock
-from unittest import skipUnless
 
 from django.test import TestCase
-from django.conf import settings
-from oscar.apps.payment.utils import Bankcard
-from oscar.apps.payment.exceptions import UnableToTakePayment, InvalidGatewayRequestError
 
-from datacash.models import OrderTransaction
 from datacash.gateway import Gateway, Response
-from datacash.facade import Facade
 
 from . import XmlTestingMixin, fixtures
 
@@ -40,7 +32,7 @@ class TestGatewayWithCV2AVSMock(TestCase, XmlTestingMixin):
             self.gateway_auth(amount=D('0.00'))
 
     def test_cvv_is_included_in_request(self):
-        response = self.gateway_auth(cvv='456')
+        response = self.gateway_auth(ccv='456')
         self.assertXmlElementEquals(response.request_xml, '456', 'Request.Transaction.CardTxn.Card.Cv2Avs.cv2')
 
     def test_capture_method_defaults_to_ecomm(self):
