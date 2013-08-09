@@ -320,6 +320,12 @@ Have fun!
 
 Changelog
 =========
+
+0.5.2
+-----
+* Remove uniqueness constraint for 3rdman response
+* Add links to Gatekeeper from dashboard
+
 0.5.1
 -----
 * Adjust how the response type of callback is determined
