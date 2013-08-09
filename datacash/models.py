@@ -90,7 +90,7 @@ class FraudResponse(models.Model):
     aggregator_identifier = models.CharField(max_length=15, blank=True)
     merchant_identifier = models.CharField(max_length=15)
     merchant_order_ref = models.CharField(max_length=250, db_index=True)
-    t3m_id = models.CharField(max_length=128, unique=True)
+    t3m_id = models.CharField(max_length=128, db_index=True)
     score = models.IntegerField()
 
     RELEASE, HOLD, REJECT, UNDER_INVESTIGATION = 0, 1, 2, 9
