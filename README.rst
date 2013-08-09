@@ -154,6 +154,15 @@ Simply include the URLs in your ``urls.py``:
         ...
     )
 
+Logging
+-------
+
+The gateway modules uses the named logger ``datacash``.
+
+The3rdMan callbacks use the named logger ``datacash.the3rdman``.  It is
+recommended that you use ``django.utils.log.AdminMailHandler`` with this logger
+to ensure error emails are sent out for 500 responses.
+
 Integration trouble-shooting
 ----------------------------
 
