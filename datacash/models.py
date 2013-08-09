@@ -3,6 +3,7 @@ from xml.dom.minidom import parseString
 import urlparse
 
 from django.db import models
+from django.conf import settings
 
 from .the3rdman import signals
 
@@ -184,3 +185,13 @@ class FraudResponse(models.Model):
             self.UNDER_INVESTIGATION: "Under investigation",
         }
         return mapping.get(self.recommendation, "Unknown")
+
+    @property
+    def gatekeeper_url(self):
+        """
+        Return the transaction detail URL on the Gatekeeper site
+        """
+        is_live = 'mars' in settings.DATACASH_HOST
+        host = 'cnpanalyst.com' if is_live else 'test.cnpanalyst.com'
+        return 'https://%s/TransactionDetails.aspx?TID=%s' % (
+            host, self.t3m_id)

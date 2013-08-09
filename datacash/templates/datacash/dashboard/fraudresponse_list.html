@@ -33,6 +33,7 @@
                     <th>{% trans "Score" %}</th>
                     <th>{% trans "Recommendation" %}</th>
                     <th>{% trans "Date receieved" %}</th>
+                    <th></th>
                 </tr>
             </thead>
             <tbody>
@@ -46,6 +47,7 @@
                     <td>{{ r.score }}</td>
                     <td>{{ r.recommendation_text }}</td>
                     <td>{{ r.date_created }}</td>
+                    <td><a href="{{ r.gatekeeper_url }}" class="btn">View on Gatekeeper site</a></td>
                 </tr>
             {% endfor %}
         </tbody>
