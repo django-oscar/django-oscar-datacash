@@ -321,6 +321,10 @@ Have fun!
 Changelog
 =========
 
+0.5.3
+-----
+* Fix logging formatting bug
+
 0.5.2
 -----
 * Remove uniqueness constraint for 3rdman response
