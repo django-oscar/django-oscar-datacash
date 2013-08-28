@@ -197,7 +197,7 @@ class Gateway(object):
             logger.info("Merchant ref %s - response successful, Datacash ref: %s",
                         merchant_ref, response.datacash_reference)
         else:
-            logger.warning("Merchant ref %s - response unsuccessful, Datacash ref",
+            logger.warning("Merchant ref %s - response unsuccessful, Datacash ref: %s",
                            merchant_ref, response.datacash_reference)
         return response
 
