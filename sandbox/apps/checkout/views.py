@@ -79,9 +79,9 @@ class PaymentDetailsView(OscarPaymentDetailsView):
             order_number=order_number,
             shipping_address=self.get_shipping_address())
 
+        # We're not using 3rd-man by default
         datacash_ref = facade.pre_authorise(
-            order_number, total_incl_tax, kwargs['bankcard'],
-            the3rdman_data=fraud_data)
+            order_number, total_incl_tax, kwargs['bankcard'])
 
         # Request was successful - record the "payment source".  As this
         # request was a 'pre-auth', we set the 'amount_allocated' - if we had
