@@ -1,5 +1,4 @@
 {% extends 'dashboard/layout.html' %}
-{% load currency_filters %}
 {% load i18n %}
 
 {% block title %}
@@ -29,6 +28,7 @@
                     <th>{% trans "Order number" %}</th>
                     <th>{% trans "Method" %}</th>
                     <th>{% trans "Amount" %}</th>
+                    <th>{% trans "Currency" %}</th>
                     <th>{% trans "Merchant reference" %}</th>
                     <th>{% trans "Auth code" %}</th>
                     <th>{% trans "Status" %}</th>
@@ -43,7 +43,8 @@
                 <td><a href="{% url datacash-transaction-detail txn.pk %}">{{ txn.datacash_reference }}</a></td>
                 <td>{{ txn.order_number }}</td>
                 <td>{{ txn.method }}</td>
-                <td>{{ txn.amount|currency }}</td>
+                <td>{{ txn.amount }}</td>
+                <td>{{ txn.currency }}</td>
                 <td>{{ txn.merchant_reference|default:"-" }}</td>
                 <td>{{ txn.auth_code|default:"-" }}</td>
                 <td>{{ txn.status }}</td>
