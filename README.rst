@@ -321,6 +321,11 @@ Have fun!
 Changelog
 =========
 
+0.6
+---
+* Allow the transaction currency to be set pre transaction.  This is to support
+  the new multi-currency features of Oscar 0.6.
+
 0.5.3
 -----
 * Fix logging formatting bug
