@@ -1,5 +1,4 @@
 from django.db.models import get_model
-from django.core.urlresolvers import reverse
 
 Order = get_model('order', 'Order')
 
@@ -68,7 +67,7 @@ def build_delivery_info(shipping_address):
     payload['city'] = shipping_address.line4
     payload['county'] = shipping_address.state
     payload['postcode'] = shipping_address.postcode
-    payload['country'] = shipping_address.country.iso_3166_1_numeric
+    payload['country'] = u"%.03d" % shipping_address.country.iso_3166_1_numeric
     return payload
 
 
