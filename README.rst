@@ -321,6 +321,10 @@ Have fun!
 Changelog
 =========
 
+0.6.1
+-----
+* Format country codes in fraud submission.  They must be 3 digits.
+
 0.6
 ---
 * Allow the transaction currency to be set pre transaction.  This is to support
