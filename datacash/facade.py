@@ -58,6 +58,8 @@ class Facade(object):
         errors = {
             56: ('This transaction was submitted too soon after the '
                  'previous one.  Please wait for a minute then try again'),
+            59: ("We currently don't support your bankcard type.  If "
+                 "possible, please use a different bankcard to try again"),
             19: 'Unable to fulfill transaction',
         }
         default_msg = 'An error occurred when communicating with the payment gateway.'
