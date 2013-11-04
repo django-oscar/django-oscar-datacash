@@ -321,6 +321,11 @@ Have fun!
 Changelog
 =========
 
+0.6.2
+-----
+* Ensure templates are compatible with Django 1.5
+* Ensure tests pass with Oscar 0.6
+
 0.6.1
 -----
 * Format country codes in fraud submission.  They must be 3 digits.
