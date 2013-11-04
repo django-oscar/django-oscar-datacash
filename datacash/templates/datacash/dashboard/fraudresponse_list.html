@@ -1,5 +1,6 @@
 {% extends 'dashboard/layout.html' %}
 {% load currency_filters %}
+{% load url from future %}
 {% load i18n %}
 
 {% block title %}
@@ -9,7 +10,7 @@
 {% block breadcrumbs %}
     <ul class="breadcrumb">
         <li>
-            <a href="{% url dashboard:index %}">{% trans "Dashboard" %}</a>
+            <a href="{% url 'dashboard:index' %}">{% trans "Dashboard" %}</a>
             <span class="divider">/</span>
         </li>
         <li class="active">{% trans "Fraud responses" %}</li>
@@ -41,7 +42,7 @@
                 <tr {% if r.released %}class="success"{% elif r.on_hold %}class="warning"{% else %}class="error"{% endif %}>
                     <td>{{ r.t3m_id }}</td>
                     <td>{{ r.merchant_order_ref }}</td>
-                    <td><a href="{% url dashboard:order-detail r.order_number %}">{{ r.order_number }}</a></td>
+                    <td><a href="{% url 'dashboard:order-detail' r.order_number %}">{{ r.order_number }}</a></td>
                     <td>{{ r.aggregator_identifier|default:"-" }}</td>
                     <td>{{ r.merchant_identifier }}</td>
                     <td>{{ r.score }}</td>

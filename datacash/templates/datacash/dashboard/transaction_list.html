@@ -1,4 +1,5 @@
 {% extends 'dashboard/layout.html' %}
+{% load url from future %}
 {% load i18n %}
 
 {% block title %}
@@ -8,7 +9,7 @@
 {% block breadcrumbs %}
 <ul class="breadcrumb">
     <li>
-        <a href="{% url dashboard:index %}">{% trans "Dashboard" %}</a>
+        <a href="{% url 'dashboard:index' %}">{% trans "Dashboard" %}</a>
         <span class="divider">/</span>
     </li>
     <li class="active">{% trans "Datacash transactions" %}</li>
@@ -40,7 +41,7 @@
             <tbody>
             {% for txn in transactions %}
             <tr {% if txn.accepted %}class="success"{% elif txn.declined %}class="info"{% else %}class="error"{% endif %}>
-                <td><a href="{% url datacash-transaction-detail txn.pk %}">{{ txn.datacash_reference }}</a></td>
+                <td><a href="{% url 'datacash-transaction-detail' txn.pk %}">{{ txn.datacash_reference }}</a></td>
                 <td>{{ txn.order_number }}</td>
                 <td>{{ txn.method }}</td>
                 <td>{{ txn.amount }}</td>
@@ -51,7 +52,7 @@
                 <td>{{ txn.reason }}</td>
                 <td>{{ txn.date_created }}</td>
                 <td>
-                    <a href="{% url datacash-transaction-detail txn.pk %}" class="btn btn-info">{% trans "View" %}</a>
+                    <a href="{% url 'datacash-transaction-detail' txn.pk %}" class="btn btn-info">{% trans "View" %}</a>
                 </td>
             </tr>
             {% endfor %}
