@@ -31,6 +31,15 @@ class TestIntegration(TestCase, XmlTestingMixin):
     def test_basket_lines_are_converted_to_xml(self):
         product = factories.create_product(price=D('12.99'))
         basket = Basket()
+
+        # Nasty hack to make test suite work with both Oscar 0.5 and 0.6
+        try:
+            from oscar.apps.partner import strategy
+        except ImportError:
+            pass
+        else:
+            basket.strategy = strategy.Default()
+
         basket.add_product(product)
         data = the3rdman.build_data_dict(
             basket=basket)
