@@ -5,7 +5,7 @@ from oscar.apps.payment.exceptions import UnableToTakePayment, InvalidGatewayReq
 
 from datacash import gateway
 from datacash.models import OrderTransaction
-
+from datacash.codes import RESPONSE_CODES
 
 class Facade(object):
     """
@@ -54,14 +54,8 @@ class Facade(object):
         return 'The transaction was declined by your bank - please check your bankcard details and try again'
 
     def get_friendly_error_message(self, response):
-        # TODO: expand this dict to handle the most common errors
-        errors = {
-            56: ('This transaction was submitted too soon after the '
-                 'previous one.  Please wait for a minute then try again'),
-            19: 'Unable to fulfill transaction',
-        }
         default_msg = 'An error occurred when communicating with the payment gateway.'
-        return errors.get(response.status, default_msg)
+        return RESPONSE_CODES.get(response.status, default_msg)
 
     def extract_address_data(self, address):
         data = {}
