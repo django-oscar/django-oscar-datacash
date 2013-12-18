@@ -1,6 +1,7 @@
 import random
 
 from django.conf import settings
+from django.utils.translation import ugettext_lazy as _
 from oscar.apps.payment.exceptions import UnableToTakePayment, InvalidGatewayRequestError
 
 from datacash import gateway
@@ -33,8 +34,14 @@ class Facade(object):
             msg = self.get_friendly_decline_message(response)
             raise UnableToTakePayment(msg)
         else:
-            msg = self.get_friendly_error_message(response)
-            raise InvalidGatewayRequestError(msg)
+            # If there's a customer friendly version of this error, raise
+            # UnableToTakePayment so that the error gets shown to the customer,
+            # otherwise raise InvalidGatewayRequestError (a subclass of
+            # PaymentError) which will show a generic error message.
+            friendly_msg = self.get_friendly_error_message(response)
+            if friendly_msg:
+                raise UnableToTakePayment(friendly_msg)
+            raise InvalidGatewayRequestError(response.reason)
 
     def record_txn(self, method, order_number, amount, currency, response):
         OrderTransaction.objects.create(
@@ -51,19 +58,19 @@ class Facade(object):
             response_xml=response.response_xml)
 
     def get_friendly_decline_message(self, response):
-        return 'The transaction was declined by your bank - please check your bankcard details and try again'
+        return _('The transaction was declined by your bank - '
+                 'please check your bankcard details and try again')
 
     def get_friendly_error_message(self, response):
         # TODO: expand this dict to handle the most common errors
         errors = {
-            56: ('This transaction was submitted too soon after the '
-                 'previous one.  Please wait for a minute then try again'),
-            59: ("We currently don't support your bankcard type.  If "
-                 "possible, please use a different bankcard to try again"),
-            19: 'Unable to fulfill transaction',
+            56: _('This transaction was submitted too soon after the '
+                  'previous one.  Please wait for a minute then try again'),
+            59: _("We currently don't support your bankcard type.  If "
+                  "possible, please use a different bankcard to try again"),
+            19: _('Unable to fulfill transaction'),
         }
-        default_msg = 'An error occurred when communicating with the payment gateway.'
-        return errors.get(response.status, default_msg)
+        return errors.get(response.status)
 
     def extract_address_data(self, address):
         data = {}

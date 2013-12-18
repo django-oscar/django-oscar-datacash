@@ -65,6 +65,10 @@ class Response(object):
         return self.response_xml
 
     @property
+    def reason(self):
+        return self.data['reason']
+
+    @property
     def datacash_reference(self):
         return self.data['datacash_reference']
 
