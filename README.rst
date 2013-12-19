@@ -321,6 +321,10 @@ Have fun!
 Changelog
 =========
 
+0.7
+---
+* Ensure compatibility with Django 1.6 and Oscar 0.6
+
 0.6.2
 -----
 * Ensure templates are compatible with Django 1.5
