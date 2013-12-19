@@ -3,33 +3,33 @@
 {% load i18n %}
 
 {% block payment_method %}
-<div class="span6">
-	<div class="sub-header">
-		<h2>Payment</h2>
-	</div>
-	<div class="well well-success">
-		<p>{% blocktrans with amount=order_total_incl_tax|currency %}{{ amount }} will be debited from your bankcard.{% endblocktrans %}</p>
-		<div class="alert-actions">
-			<a href="{% url checkout:payment-details %}" class="btn">{% trans "Change payment details" %}</a>
-		</div>
-	</div>
-</div>
+    <div class="span6">
+        <div class="sub-header">
+            <h2>Payment</h2>
+        </div>
+        <div class="well well-success">
+            <p>{% blocktrans with amount=order_total.incl_tax|currency:order_total.currency %}{{ amount }} will be debited from your bankcard.{% endblocktrans %}</p>
+            <div class="alert-actions">
+                <a href="{% url 'checkout:payment-details' %}" class="btn">{% trans "Change payment details" %}</a>
+            </div>
+        </div>
+    </div>
 {% endblock %}
 
 {% block place_order %}
-<h3>{% trans 'Please review the information below, then click "Place Order"' %}</h3>
-<form method="post" action="{% url checkout:preview %}">
-	{% csrf_token %}
+    <h3>{% trans 'Please review the information below, then click "Place Order"' %}</h3>
+    <form method="post" action="{% url 'checkout:preview' %}">
+        {% csrf_token %}
 
-	<div style="display:none">
-		<input type="hidden" name="action" value="place_order" />
-		{{ bankcard_form.as_p }}
-	</div>
+        <div style="display:none">
+            <input type="hidden" name="action" value="place_order" />
+            {{ bankcard_form.as_p }}
+        </div>
 
-    <div class="form-actions">
-        <button id='place-order' type="submit" value="{% trans "Place order" %}"
-          class="pull-right btn btn-primary btn-large js-disable-on-click"
-          >{% trans "Place order" %}</button>
-    </div>
-</form>
+        <div class="form-actions">
+            <button id='place-order' type="submit" value="{% trans "Place order" %}"
+            class="pull-right btn btn-primary btn-large js-disable-on-click"
+            >{% trans "Place order" %}</button>
+        </div>
+    </form>
 {% endblock place_order %}

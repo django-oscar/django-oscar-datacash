@@ -7,14 +7,16 @@
 {% endblock %}
 
 {% block payment_info %}
-<div class="well well-success">
-	<h3>{% trans "Payment" %}</h3>
-	{% for source in order.sources.all %}
-		{% if source.source_type.name == 'Datacash' %}
-		{% blocktrans with amount=source.amount_allocated|currency %}{{ amount }} authorised on your bankcard{% endblocktrans %}
-		{% else %}
-		{{ source }}
-		{% endif %}
-	{% endfor %}
-</div>
+    <div class="sub-header">
+        <h2>{% trans "Payment" %}</h2>
+    </div>
+    <div class="well well-success">
+        {% for source in order.sources.all %}
+            {% if source.source_type.name == 'Datacash' %}
+                {% blocktrans with amount=source.amount_allocated|currency %}{{ amount }} authorised on your bankcard{% endblocktrans %}
+            {% else %}
+                {{ source }}
+            {% endif %}
+        {% endfor %}
+    </div>
 {% endblock %}
