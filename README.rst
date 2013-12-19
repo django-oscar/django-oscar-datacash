@@ -76,7 +76,7 @@ checkout views.  See `Oscar's documentation`_ on how to create a local version o
 .. _`Oscar's documentation`: http://django-oscar.readthedocs.org/en/latest/index.html
 
 Override the ``handle_payment`` method (which is blank by default) and add your integration code.  An example
-integration might look like:
+integration with Oscar 0.5 might look like:
 
 .. code:: python
 
@@ -93,10 +93,10 @@ integration might look like:
 
     class PaymentDetailsView(OscarPaymentDetailsView):
 
-        def get_context_data(self):
+        def get_context_data(self, **kwargs):
             ...
             # Render a bankcard form
-            ctx['bankcard_form'] = BankcardForm()
+            ctx['bankcard_form'] = kwargs.get('bankcard_form', BankcardForm())
             ...
             return ctx
 
