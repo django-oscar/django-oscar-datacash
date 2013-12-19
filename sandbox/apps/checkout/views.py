@@ -23,11 +23,18 @@ class PaymentDetailsView(OscarPaymentDetailsView):
         return ctx
 
     def post(self, request, *args, **kwargs):
+        bankcard_form = BankcardForm(request.POST)
+
         if request.POST.get('action', '') == 'place_order':
-            return self.do_place_order(request)
+            if not bankcard_form.is_valid():
+                messages.error(request, _("Invalid submission"))
+                return HttpResponseRedirect(
+                    reverse('checkout:payment-details'))
+            submission = self.build_submission(
+                bankcard=bankcard_form.bankcard)
+            return self.submit(**submission)
 
         # Check bankcard form is valid
-        bankcard_form = BankcardForm(request.POST)
         if not bankcard_form.is_valid():
             ctx = self.get_context_data(**kwargs)
             ctx['bankcard_form'] = bankcard_form
@@ -36,34 +43,16 @@ class PaymentDetailsView(OscarPaymentDetailsView):
         # Render preview page (with bankcard details hidden)
         return self.render_preview(request, bankcard_form=bankcard_form)
 
-    def do_place_order(self, request):
-        bankcard_form = BankcardForm(request.POST)
-        if not bankcard_form.is_valid():
-            messages.error(request, _("Invalid submission"))
-            return HttpResponseRedirect(reverse('checkout:payment-details'))
-        bankcard = bankcard_form.get_bankcard_obj()
+    def build_submission(self, **kwargs):
+        submission = super(PaymentDetailsView, self).build_submission(**kwargs)
+        if 'bankcard' in kwargs:
+            submission['payment_kwargs']['bankcard'] = kwargs['bankcard']
+        # Fraud screening needs access to shipping address
+        submission['payment_kwargs']['shipping_address'] = submission[
+            'shipping_address']
+        return submission
 
-        # Call oscar's submit method, passing through the bankcard object so it
-        # gets passed to the 'handle_payment' method
-        return self.submit(request.basket,
-                           payment_kwargs={'bankcard': bankcard})
-
-    # This is only required for Oscar < 0.6 which doesn't support a nice
-    # way of getting a ShippingAddress instance without saving it.
-    def get_shipping_address(self):
-        addr_data = self.checkout_session.new_shipping_address_fields()
-        if addr_data:
-            return ShippingAddress(**addr_data)
-
-        addr_id = self.checkout_session.user_address_id()
-        if addr_id:
-            # Create shipping address from an existing user address
-            user_addr = UserAddress.objects.get(id=addr_id)
-            shipping_addr = ShippingAddress()
-            user_addr.populate_alternative_model(shipping_addr)
-            return shipping_addr
-
-    def handle_payment(self, order_number, total_incl_tax, **kwargs):
+    def handle_payment(self, order_number, order_total, **kwargs):
         # Make request to DataCash - if there any problems (eg bankcard
         # not valid / request refused by bank) then an exception would be
         # raised and handled)
@@ -77,11 +66,11 @@ class PaymentDetailsView(OscarPaymentDetailsView):
             request=self.request,
             email=email,
             order_number=order_number,
-            shipping_address=self.get_shipping_address())
+            shipping_address=kwargs['shipping_address'])
 
         # We're not using 3rd-man by default
         datacash_ref = facade.pre_authorise(
-            order_number, total_incl_tax, kwargs['bankcard'])
+            order_number, order_total.incl_tax, kwargs['bankcard'])
 
         # Request was successful - record the "payment source".  As this
         # request was a 'pre-auth', we set the 'amount_allocated' - if we had
@@ -89,9 +78,9 @@ class PaymentDetailsView(OscarPaymentDetailsView):
         source_type, _ = SourceType.objects.get_or_create(name='Datacash')
         source = Source(source_type=source_type,
                         currency=settings.DATACASH_CURRENCY,
-                        amount_allocated=total_incl_tax,
+                        amount_allocated=order_total.incl_tax,
                         reference=datacash_ref)
         self.add_payment_source(source)
 
         # Also record payment event
-        self.add_payment_event('pre-auth', total_incl_tax)
+        self.add_payment_event('pre-auth', order_total.incl_tax)

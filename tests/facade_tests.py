@@ -1,17 +1,12 @@
 # -*- coding: utf-8 -*-
 from decimal import Decimal as D
-import math
-import time
 from mock import Mock
-from unittest import skipUnless
 
 from django.test import TestCase
-from django.conf import settings
 from oscar.apps.payment.utils import Bankcard
 from oscar.apps.payment.exceptions import UnableToTakePayment, InvalidGatewayRequestError
 
 from datacash.models import OrderTransaction
-from datacash.gateway import Gateway, Response
 from datacash.facade import Facade
 
 from . import XmlTestingMixin, fixtures
@@ -30,7 +25,7 @@ class FacadeTests(TestCase, XmlTestingMixin):
 
     def test_unicode_handling(self):
         self.facade.gateway._fetch_response_xml = Mock(return_value=fixtures.SAMPLE_RESPONSE)
-        card = Bankcard('1000350000000007', '10/13', cvv='345')
+        card = Bankcard(card_number='1000350000000007', expiry_date='10/13', cvv='345')
         self.facade.pre_authorise(
             '1234', D('10.00'), card,
             the3rdman_data={

@@ -6,7 +6,6 @@ from unittest import skipUnless
 
 from django.test import TestCase
 from django.conf import settings
-from oscar.apps.payment.utils import Bankcard
 from oscar.apps.payment.exceptions import UnableToTakePayment, InvalidGatewayRequestError
 
 from datacash.models import OrderTransaction

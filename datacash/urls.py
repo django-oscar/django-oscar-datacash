@@ -1,4 +1,4 @@
-from django.conf.urls.defaults import *
+from django.conf.urls import *
 from django.views.decorators.csrf import csrf_exempt
 
 from .the3rdman import views
