@@ -7,6 +7,7 @@ class TransactionListView(ListView):
     model = models.OrderTransaction
     context_object_name = 'transactions'
     template_name = 'datacash/dashboard/transaction_list.html'
+    paginate_by = 20
 
 
 class TransactionDetailView(DetailView):
@@ -19,3 +20,4 @@ class FraudResponseListView(ListView):
     model = models.FraudResponse
     context_object_name = 'responses'
     template_name = 'datacash/dashboard/fraudresponse_list.html'
+    paginate_by = 20
