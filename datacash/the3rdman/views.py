@@ -25,10 +25,11 @@ class CallbackView(generic.View):
             if '<?xml' in request.body:
                 response = models.FraudResponse.create_from_xml(request.body)
             else:
-                response = models.FraudResponse.create_from_querystring(request.body)
-        except Exception, e:
-            logger.error("Error raised handling response:\n%s", request.body)
-            logger.exception(e)
+                response = models.FraudResponse.create_from_querystring(
+                    request.body)
+        except Exception:
+            logger.error("Error raised handling response:\n%s", request.body,
+                         exc_info=True)
             return http.HttpResponseServerError("error")
         else:
             logger.info("Successful response received with merchant ref %s",
