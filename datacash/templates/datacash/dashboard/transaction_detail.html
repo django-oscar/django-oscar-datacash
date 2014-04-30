@@ -1,5 +1,6 @@
 {% extends 'dashboard/layout.html' %}
 {% load url from future %}
+{% load currency_filters %}
 {% load i18n %}
 
 {% block title %}
@@ -30,7 +31,7 @@
             <tr><th>{% trans "Datacash reference" %}</th><td>{{ txn.datacash_reference }}</td></tr>
             <tr><th>{% trans "Order number" %}</th><td>{{ txn.order_number }}</td></tr>
             <tr><th>{% trans "Method" %}</th><td>{{ txn.method }}</td></tr>
-            <tr><th>{% trans "Amount" %}</th><td>{{ txn.amount }}</td></tr>
+            <tr><th>{% trans "Amount" %}</th><td>{{ txn.amount|currency:txn.currency }}</td></tr>
             <tr><th>{% trans "Currency" %}</th><td>{{ txn.currency }}</td></tr>
             <tr><th>{% trans "Merchant reference" %}</th><td>{{ txn.merchant_reference }}</td></tr>
             <tr><th>{% trans "Auth code" %}</th><td>{{ txn.auth_code|default:"-" }}</td></tr>
