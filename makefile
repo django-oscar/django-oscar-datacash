@@ -1,5 +1,5 @@
 install:
-	pip install -r requirements.txt --use-mirrors
+	pip install -r requirements.txt
 	./setup.py develop 
 
 sandbox: install
