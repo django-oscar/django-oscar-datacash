@@ -321,6 +321,11 @@ Have fun!
 Changelog
 =========
 
+0.8
+---
+* Ensure compatibility with Oscar 0.7
+* Drop support for Oscar 0.4 and 0.5
+
 0.7
 ---
 * Ensure compatibility with Django 1.6 and Oscar 0.6
