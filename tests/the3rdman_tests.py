@@ -1,7 +1,7 @@
 from decimal import Decimal as D
 
 from django.test import TestCase
-from oscar_testsupport import factories
+from oscar.test import factories
 from oscar.apps.basket.models import Basket
 
 from datacash import the3rdman, models
