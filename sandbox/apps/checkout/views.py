@@ -1,4 +1,4 @@
-from django.http import HttpResponseRedirect
+from django import http
 from django.core.urlresolvers import reverse
 from django.contrib import messages
 from django.conf import settings
@@ -22,55 +22,57 @@ class PaymentDetailsView(OscarPaymentDetailsView):
         ctx['bankcard_form'] = kwargs.get('bankcard_form', BankcardForm())
         return ctx
 
-    def post(self, request, *args, **kwargs):
+    def handle_payment_details_submission(self, request):
+        # Check bankcard form is valid
         bankcard_form = BankcardForm(request.POST)
+        if bankcard_form.is_valid():
+            return self.render_preview(
+                request, bankcard_form=bankcard_form)
 
-        if request.POST.get('action', '') == 'place_order':
-            if not bankcard_form.is_valid():
-                messages.error(request, _("Invalid submission"))
-                return HttpResponseRedirect(
-                    reverse('checkout:payment-details'))
+        # Form invalid - re-render
+        return self.render_payment_details(
+            request, bankcard_form=bankcard_form)
+
+    def handle_place_order_submission(self, request):
+        bankcard_form = BankcardForm(request.POST)
+        if bankcard_form.is_valid():
             submission = self.build_submission(
-                bankcard=bankcard_form.bankcard)
+                payment_kwargs={
+                    'bankcard_form': bankcard_form
+                })
             return self.submit(**submission)
 
-        # Check bankcard form is valid
-        if not bankcard_form.is_valid():
-            ctx = self.get_context_data(**kwargs)
-            ctx['bankcard_form'] = bankcard_form
-            return self.render_to_response(ctx)
-
-        # Render preview page (with bankcard details hidden)
-        return self.render_preview(request, bankcard_form=bankcard_form)
+        messages.error(request, _("Invalid submission"))
+        return http.HttpResponseRedirect(
+            reverse('checkout:payment-details'))
 
     def build_submission(self, **kwargs):
+        # Ensure the shipping address is part of the payment keyword args
         submission = super(PaymentDetailsView, self).build_submission(**kwargs)
-        if 'bankcard' in kwargs:
-            submission['payment_kwargs']['bankcard'] = kwargs['bankcard']
-        # Fraud screening needs access to shipping address
         submission['payment_kwargs']['shipping_address'] = submission[
             'shipping_address']
         return submission
 
-    def handle_payment(self, order_number, order_total, **kwargs):
+    def handle_payment(self, order_number, total, **kwargs):
         # Make request to DataCash - if there any problems (eg bankcard
         # not valid / request refused by bank) then an exception would be
         # raised and handled)
         facade = Facade()
 
         # Use The3rdMan - so build a dict of data to pass
-        email = None
-        if not self.request.user.is_authenticated():
-            email = self.checkout_session.get_guest_email()
-        fraud_data = the3rdman.build_data_dict(
-            request=self.request,
-            email=email,
-            order_number=order_number,
-            shipping_address=kwargs['shipping_address'])
+        # email = None
+        # if not self.request.user.is_authenticated():
+        #     email = self.checkout_session.get_guest_email()
+        # fraud_data = the3rdman.build_data_dict(
+        #     request=self.request,
+        #     email=email,
+        #     order_number=order_number,
+        #     shipping_address=kwargs['shipping_address'])
 
         # We're not using 3rd-man by default
+        bankcard = kwargs['bankcard_form'].bankcard
         datacash_ref = facade.pre_authorise(
-            order_number, order_total.incl_tax, kwargs['bankcard'])
+            order_number, total.incl_tax, bankcard)
 
         # Request was successful - record the "payment source".  As this
         # request was a 'pre-auth', we set the 'amount_allocated' - if we had
@@ -78,9 +80,9 @@ class PaymentDetailsView(OscarPaymentDetailsView):
         source_type, _ = SourceType.objects.get_or_create(name='Datacash')
         source = Source(source_type=source_type,
                         currency=settings.DATACASH_CURRENCY,
-                        amount_allocated=order_total.incl_tax,
+                        amount_allocated=total.incl_tax,
                         reference=datacash_ref)
         self.add_payment_source(source)
 
         # Also record payment event
-        self.add_payment_event('pre-auth', order_total.incl_tax)
+        self.add_payment_event('pre-auth', total.incl_tax)

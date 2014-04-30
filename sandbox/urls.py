@@ -3,7 +3,6 @@ from django.conf import settings
 from django.contrib import admin
 from django.contrib.staticfiles.urls import staticfiles_urlpatterns
 from django.conf.urls.static import static
-from django.views.generic import TemplateView
 
 from apps.app import shop
 
@@ -16,6 +15,7 @@ urlpatterns = patterns('',
     # Include dashboard URLs
     (r'^dashboard/datacash/', include(application.urls)),
     (r'^datacash/', include('datacash.urls')),
+    url(r'^i18n/', include('django.conf.urls.i18n')),
     (r'', include(shop.urls)),
 )
 if settings.DEBUG:

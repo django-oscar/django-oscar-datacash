@@ -217,9 +217,6 @@ AUTHENTICATION_BACKENDS = (
 LOGIN_REDIRECT_URL = '/accounts/'
 APPEND_SLASH = True
 
-DEBUG_TOOLBAR_CONFIG = {
-    'INTERCEPT_REDIRECTS': False,
-}
 
 # ==============
 # Oscar settings

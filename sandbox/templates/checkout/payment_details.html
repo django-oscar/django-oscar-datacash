@@ -2,13 +2,9 @@
 {% load i18n %}
 
 {% block payment_details_content %}
-
-<form action="{% url 'checkout:preview' %}" class="form-stacked" method="POST">
-	<table>
-		{% csrf_token %}
-		{{ bankcard_form.as_table }}
-		<tr><td><button type="submit" value="{% trans "Continue" %}" class="btn btn-primary btn-large">{% trans "Continue" %}</button></td></tr>
-	</table>
-</form>
-
+    <form action="{% url 'checkout:preview' %}" class="form-stacked" method="POST">
+        {% csrf_token %}
+        {% include "partials/form_fields.html" with form=bankcard_form %}
+        <button type="submit" value="{% trans "Continue" %}" class="btn btn-primary btn-large">{% trans "Continue" %}</button>
+    </form>
 {% endblock %}
