@@ -106,7 +106,7 @@ class Facade(object):
         address_data = self.extract_address_data(billing_address)
         if bankcard:
             response = self.gateway.pre(
-                card_number=bankcard.card_number,
+                card_number=bankcard.number,
                 expiry_date=bankcard.expiry_date,
                 amount=amount,
                 currency=currency,
@@ -198,7 +198,7 @@ class Facade(object):
         merchant_ref = self.merchant_reference(order_number, gateway.AUTH)
         address_data = self.extract_address_data(billing_address)
         if bankcard:
-            response = self.gateway.auth(card_number=bankcard.card_number,
+            response = self.gateway.auth(card_number=bankcard.number,
                                          expiry_date=bankcard.expiry_date,
                                          amount=amount,
                                          currency=currency,
@@ -229,7 +229,7 @@ class Facade(object):
             currency = settings.DATACASH_CURRENCY
         merchant_ref = self.merchant_reference(order_number, gateway.REFUND)
         if bankcard:
-            response = self.gateway.refund(card_number=bankcard.card_number,
+            response = self.gateway.refund(card_number=bankcard.number,
                                            expiry_date=bankcard.expiry_date,
                                            amount=amount,
                                            currency=currency,
