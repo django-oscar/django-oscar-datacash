@@ -248,6 +248,10 @@ Have fun!
 Changelog
 =========
 
+0.8.1
+-----
+* Drop use of deprecated bankcard attribute
+
 0.8
 ---
 * Ensure compatibility with Oscar 0.7
