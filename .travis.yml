@@ -1,10 +1,23 @@
 language: python
+
 python:
   - 2.7
+
+env:
+  matrix:
+    - COMBO="Django==1.5.8 django-oscar==0.6.5"
+    - COMBO="Django==1.5.8 django-oscar==0.7.2"
+    - COMBO="Django==1.6.5 django-oscar==0.6.5"
+    - COMBO="Django==1.6.5 django-oscar==0.7.2"
+    - COMBO="Django==1.6.5 South==1.0 https://github.com/tangentlabs/django-oscar/archive/master.tar.gz"
+    - COMBO="https://www.djangoproject.com/download/1.7c2/tarball/ https://github.com/tangentlabs/django-oscar/archive/master.tar.gz"
+
 install:
-  - pip install -r requirements.txt 
+  - pip install $COMBO -r requirements.txt
   - python setup.py develop
+
 script:
   - coverage run ./runtests.py
+
 after_success:
   - coveralls
