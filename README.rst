@@ -6,21 +6,19 @@ This package provides integration with the payment gateway, DataCash_.  It is de
 work seamlessly with the e-commerce framework `django-oscar`_ but can be used without 
 Oscar.
 
-It also supports batch fraud screeing using The3rdMan.
+It also supports batch fraud screening using The3rdMan.
 
 .. _DataCash: http://www.datacash.com/
 .. _`django-oscar`: https://github.com/tangentlabs/django-oscar
 
 * `PyPI homepage`_
-* `crate.io page`_
 
 .. _`continuous integration status`: http://travis-ci.org/#!/tangentlabs/django-oscar-datacash
 .. _`PyPI homepage`: http://pypi.python.org/pypi/django-oscar-datacash/
-.. _`crate.io page`: https://crate.io/packages/django-oscar-datacash/
 
 .. image:: https://secure.travis-ci.org/tangentlabs/django-oscar-datacash.png
     :alt: Continuous integration
-    :target: http://travis-ci.org/#!/tangentlabs/django-oscar-datacash
+    :target: http://travis-ci.org/#!/tangentlabs/django-oscar-datacash?branch=master
 
 .. image:: https://coveralls.io/repos/tangentlabs/django-oscar-datacash/badge.png?branch=master
     :alt: Coverage
