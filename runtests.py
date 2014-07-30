@@ -55,7 +55,16 @@ if not settings.configured:
             'default': {
                 'ENGINE': 'haystack.backends.simple_backend.SimpleEngine',
             },
-    }}
+        },
+        'MIDDLEWARE_CLASSES': (
+                'django.middleware.common.CommonMiddleware',
+                'django.contrib.sessions.middleware.SessionMiddleware',
+                'django.middleware.csrf.CsrfViewMiddleware',
+                'django.contrib.auth.middleware.AuthenticationMiddleware',
+                'django.contrib.messages.middleware.MessageMiddleware',
+                'oscar.apps.basket.middleware.BasketMiddleware',
+        ),
+    }
     if django.VERSION < (1,7):
         sandbox_settings['INSTALLED_APPS'] += ['south']
     sandbox_settings.update(datacash_settings)
