@@ -3,6 +3,7 @@ import sys
 from optparse import OptionParser
 import logging
 
+import django
 from django.conf import settings
 
 logging.disable(logging.CRITICAL)
@@ -32,31 +33,33 @@ if not settings.configured:
 
     from oscar import get_core_apps
 
-    settings.configure(
-            DATABASES={
-                'default': {
-                    'ENGINE': 'django.db.backends.sqlite3',
-                    }
-                },
-            INSTALLED_APPS=[
-                'django.contrib.auth',
-                'django.contrib.admin',
-                'django.contrib.contenttypes',
-                'django.contrib.sessions',
-                'django.contrib.sites',
-                'datacash',
-                'south',
-                ] + get_core_apps(),
-            DEBUG=False,
-            SITE_ID=1,
-            ROOT_URLCONF='tests.urls',
-            NOSE_ARGS=['-s'],
-            HAYSTACK_CONNECTIONS={
-                'default': {
-                    'ENGINE': 'haystack.backends.simple_backend.SimpleEngine',
-                },
+    sandbox_settings = {
+        'DATABASES': {
+            'default': {
+                'ENGINE': 'django.db.backends.sqlite3',
+            }
+        },
+        'INSTALLED_APPS': [
+            'django.contrib.auth',
+            'django.contrib.admin',
+            'django.contrib.contenttypes',
+            'django.contrib.sessions',
+            'django.contrib.sites',
+            'datacash',
+        ] + get_core_apps(),
+        'DEBUG': False,
+        'SITE_ID': 1,
+        'ROOT_URLCONF': 'tests.urls',
+        'NOSE_ARGS': ['-s'],
+        'HAYSTACK_CONNECTIONS': {
+            'default': {
+                'ENGINE': 'haystack.backends.simple_backend.SimpleEngine',
             },
-            **datacash_settings)
+    }}
+    if django.VERSION < (1,7):
+        sandbox_settings['INSTALLED_APPS'] += ['south']
+    sandbox_settings.update(datacash_settings)
+    settings.configure(**sandbox_settings)
 
 # Needs to be here to avoid missing SETTINGS env var
 from django_nose import NoseTestSuiteRunner
