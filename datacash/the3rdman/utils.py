@@ -1,8 +1,3 @@
-from django.db.models import get_model
-
-Order = get_model('order', 'Order')
-
-
 def build_data_dict(request=None, user=None, email=None, order_number=None,
                     basket=None, shipping_address=None, billing_address=None):
     """
