@@ -84,10 +84,9 @@ def build_order_info(basket):
     payload = {'products': []}
     for line in basket.all_lines():
         product = line.product
-        stockrecord = product.stockrecord
         datum = {
             'code': product.upc,
-            'price': stockrecord.price_incl_tax,
+            'price': line.price_incl_tax,
             'prod_description': product.description,
             'prod_id': product.id,
             'quantity': line.quantity,
