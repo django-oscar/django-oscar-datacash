@@ -3,7 +3,7 @@ from setuptools import setup, find_packages
 
 
 setup(name='django-oscar-datacash',
-      version='0.8.1',
+      version='0.8.2',
       url='https://github.com/tangentlabs/django-oscar-datacash',
       author="David Winterbottom",
       author_email="david.winterbottom@tangentlabs.co.uk",

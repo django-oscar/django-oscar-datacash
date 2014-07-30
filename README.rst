@@ -248,6 +248,11 @@ Have fun!
 Changelog
 =========
 
+0.8.2
+-----
+
+* Added support for Django 1.7
+
 0.8.1
 -----
 * Drop use of deprecated bankcard attribute
