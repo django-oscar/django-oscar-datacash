@@ -1,6 +1,6 @@
 import re
 from xml.dom.minidom import parseString
-import urlparse
+from six.moves.urllib.parse import parse_qs
 
 from django.db import models
 from django.conf import settings
@@ -137,7 +137,7 @@ class FraudResponse(models.Model):
         def extract(data, key):
             return data.get(key, [""])[0]
 
-        data = urlparse.parse_qs(query)
+        data = parse_qs(query)
         return cls.create_from_payload(query, data, extract)
 
     @classmethod

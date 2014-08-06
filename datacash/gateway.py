@@ -1,5 +1,6 @@
 from xml.dom.minidom import Document, parseString
-import httplib
+
+from six.moves import http_client
 import re
 import logging
 import datetime
@@ -99,13 +100,13 @@ class Gateway(object):
 
     def _fetch_response_xml(self, request_xml):
         # Need to fill in HTTP request here
-        conn = httplib.HTTPSConnection(self._host, 443, timeout=30)
+        conn = http_client.HTTPSConnection(self._host, 443, timeout=30)
         headers = {"Content-type": "application/xml",
                    "Accept": ""}
         conn.request("POST", self._path, request_xml.encode('utf8'), headers)
         response = conn.getresponse()
         response_xml = response.read()
-        if response.status != httplib.OK:
+        if response.status != http_client.OK:
             raise GatewayError("Unable to communicate with payment gateway (code: %s, response: %s)" % (response.status, response_xml))
         conn.close()
         return response_xml

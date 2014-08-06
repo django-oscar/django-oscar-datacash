@@ -13,7 +13,11 @@ setup(name='django-oscar-datacash',
       license='BSD',
       packages=find_packages(exclude=['sandbox*', 'tests*']),
       include_package_data=True,
-      install_requires=['django-oscar>=0.6'],
+      install_requires=[
+          'django-oscar>=0.6',
+          # Python 2 & 3 compatibility helper
+          'six>=1.5.2',
+      ],
       # See http://pypi.python.org/pypi?%3Aaction=list_classifiers
       classifiers=['Environment :: Web Environment',
                    'Framework :: Django',
