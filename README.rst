@@ -246,6 +246,11 @@ Have fun!
 Changelog
 =========
 
+0.8.3
+-----
+
+* Added support for Python 3
+
 0.8.2
 -----
 
