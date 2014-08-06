@@ -21,12 +21,12 @@ if not settings.configured:
             'DATACASH_USE_CV2AVS': True,
         })
     else:
-        for key, value in locals().items():
+        for key, value in list(locals().items()):
             if key.startswith('DATACASH'):
                 datacash_settings[key] = value
 
     from oscar.defaults import *
-    for key, value in locals().items():
+    for key, value in list(locals().items()):
         if key.startswith('OSCAR'):
             datacash_settings[key] = value
     datacash_settings['OSCAR_EAGER_ALERTS'] = False
