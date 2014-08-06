@@ -22,7 +22,7 @@ class CallbackView(generic.View):
         try:
             # Datacash send both XML and query string with the same content
             # type header :( so we have to check for XML syntax.
-            if '<?xml' in request.body:
+            if b'<?xml' in request.body:
                 response = models.FraudResponse.create_from_xml(request.body)
             else:
                 response = models.FraudResponse.create_from_querystring(
@@ -34,4 +34,4 @@ class CallbackView(generic.View):
         else:
             logger.info("Successful response received with merchant ref %s",
                         response.merchant_order_ref)
-            return http.HttpResponse("ok")
+            return http.HttpResponse(b"ok")

@@ -4,6 +4,7 @@ from six.moves.urllib.parse import parse_qs
 
 from django.db import models
 from django.conf import settings
+from django.utils.encoding import python_2_unicode_compatible
 
 from .the3rdman import signals
 
@@ -15,6 +16,7 @@ def prettify_xml(xml_str):
     return regex.sub('>\g<1></', ugly)
 
 
+@python_2_unicode_compatible
 class OrderTransaction(models.Model):
 
     # Note we don't use a foreign key as the order hasn't been created
@@ -67,7 +69,7 @@ class OrderTransaction(models.Model):
             self.request_xml = pw_regex.sub('<password>XXX</password>', self.request_xml)
         super(OrderTransaction, self).save(*args, **kwargs)
 
-    def __unicode__(self):
+    def __str__(self):
         return u'%s txn for order %s - ref: %s, status: %s' % (
             self.method.upper(),
             self.order_number,
@@ -91,6 +93,7 @@ class OrderTransaction(models.Model):
         return self.status == 7
 
 
+@python_2_unicode_compatible
 class FraudResponse(models.Model):
     aggregator_identifier = models.CharField(max_length=15, blank=True)
     merchant_identifier = models.CharField(max_length=15)
@@ -104,7 +107,7 @@ class FraudResponse(models.Model):
     raw_response = models.TextField()
     date_created = models.DateTimeField(auto_now_add=True)
 
-    def __unicode__(self):
+    def __str__(self):
         return u"t3m ID %s (score: %s, recommendation: %s)" % (
             self.t3m_id, self.score, self.recommendation)
 

@@ -4,6 +4,7 @@ from six.moves import http_client
 import re
 import logging
 import datetime
+from django.utils.encoding import python_2_unicode_compatible
 
 from oscar.apps.payment.exceptions import GatewayError
 
@@ -24,6 +25,7 @@ TXN_REFUND = 'txn_refund'
 ACCEPTED, DECLINED, INVALID_CREDENTIALS = '1', '7', '10'
 
 
+@python_2_unicode_compatible
 class Response(object):
     """
     Encapsulate a Datacash response
@@ -60,9 +62,6 @@ class Response(object):
         return key in self.data
 
     def __str__(self):
-        return self.__unicode__()
-
-    def __unicode__(self):
         return self.response_xml
 
     @property

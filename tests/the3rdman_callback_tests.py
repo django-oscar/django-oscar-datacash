@@ -1,7 +1,7 @@
 from django.test import TestCase
 from django.core.urlresolvers import reverse
 
-SUCCESS_RESPONSE = """<?xml version="1.0"?>
+SUCCESS_RESPONSE = b"""<?xml version="1.0"?>
 <RealTimeResponse xmlns="T3MCallback">
     <aggregator_identifier/>
     <merchant_identifier>5567</merchant_identifier>
@@ -12,7 +12,7 @@ SUCCESS_RESPONSE = """<?xml version="1.0"?>
     <message_digest></message_digest>
 </RealTimeResponse>"""
 
-HOLD_RESPONSE = """<?xml version="1.0" encoding="utf-8"?>
+HOLD_RESPONSE = b"""<?xml version="1.0" encoding="utf-8"?>
 <RealTimeCallBack xmlns="T3MCallback">
     <aggregator_identifier/>
     <merchant_identifier>32217</merchant_identifier>
@@ -23,7 +23,7 @@ HOLD_RESPONSE = """<?xml version="1.0" encoding="utf-8"?>
     <message_digest>baa7421d73c962ce92220e64526af1a559f26f46</message_digest>
 </RealTimeCallBack>"""
 
-RELEASE_RESPONSE = """<?xml version="1.0" encoding="utf-8"?>
+RELEASE_RESPONSE = b"""<?xml version="1.0" encoding="utf-8"?>
 <RealTimeCallBack xmlns="T3MCallback">
     <aggregator_identifier/>
     <merchant_identifier>32217</merchant_identifier>
@@ -40,16 +40,16 @@ class TestCallbackView(TestCase):
     def test_success_response(self):
         url = reverse('datacash-3rdman-callback')
         response = self.client.post(url, SUCCESS_RESPONSE, content_type="text/xml")
-        self.assertEquals(response.content, "ok")
+        self.assertEquals(response.content, b"ok")
 
     def test_hold_then_release(self):
         url = reverse('datacash-3rdman-callback')
         response = self.client.post(url, HOLD_RESPONSE, content_type="text/xml")
-        self.assertEquals(response.content, "ok")
+        self.assertEquals(response.content, b"ok")
         response = self.client.post(url, RELEASE_RESPONSE, content_type="text/xml")
-        self.assertEquals(response.content, "ok")
+        self.assertEquals(response.content, b"ok")
 
     def test_error_response(self):
         url = reverse('datacash-3rdman-callback')
-        response = self.client.post(url, '<xml>', content_type="text/xml")
-        self.assertEquals(response.content, "error")
+        response = self.client.post(url, b'<xml>', content_type="text/xml")
+        self.assertEquals(response.content, b"error")
