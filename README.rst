@@ -245,6 +245,11 @@ Here's an example:
 Changelog
 =========
 
+0.3.6 / 2014-11-03
+------------------
+* Add pagination to transaction list view
+
+
 0.3.4 / 2012-07-08
 ------------------
 * Minor tweak to sort order of transactions in dashboard
