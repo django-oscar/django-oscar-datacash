@@ -1,13 +1,11 @@
 #!/bin/bash
 
-RELEASE_NUM=`./setup.py --version`
-git tag | grep $RELEASE_NUM > /dev/null && \
-	echo "New version number required ($RELEASE_NUM already used)" && exit 1
+# Should always publish from master
+git checkout master
 
 # Push to PyPi
 ./setup.py sdist upload
 
-# Tag in Git
-git tag $RELEASE_NUM -m "Tagging release $RELEASE_NUM"
+# Push commits and tag to remote
 git push --tags
 git push 

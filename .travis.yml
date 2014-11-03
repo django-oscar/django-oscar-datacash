@@ -2,6 +2,7 @@ language: python
 python:
   - "2.7"
 install:
+  - pip install -U -e git://github.com/tangentlabs/django-oscar.git#egg=django_oscar
   - python setup.py develop
   - pip install -r requirements.txt
 script:

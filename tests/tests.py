@@ -357,7 +357,7 @@ class TransactionModelTests(TestCase, XmlTestingMixin):
                                               response_xml=SAMPLE_RESPONSE)
         self.assertTrue('AUTH txn ' in  str(txn))
 
-    def test_cvv_numbers_are_not_saved_in_xml(self):
+    def test_password_is_not_saved_in_xml(self):
         txn = OrderTransaction.objects.create(order_number='1000',
                                               method='auth',
                                               datacash_reference='3000000088888888',
@@ -369,6 +369,19 @@ class TransactionModelTests(TestCase, XmlTestingMixin):
                                               response_xml=SAMPLE_RESPONSE)
         self.assertXmlElementEquals(txn.request_xml, 'XXX',
                                     'Request.Transaction.CardTxn.Card.Cv2Avs.cv2')
+
+    def test_cvv_numbers_are_not_saved_in_xml(self):
+        txn = OrderTransaction.objects.create(order_number='1000',
+                                              method='auth',
+                                              datacash_reference='3000000088888888',
+                                              merchant_reference='1000001',
+                                              amount=D('95.99'),
+                                              status=1,
+                                              reason='ACCEPTED',
+                                              request_xml=SAMPLE_CV2AVS_REQUEST,
+                                              response_xml=SAMPLE_RESPONSE)
+        self.assertXmlElementEquals(txn.request_xml, 'XXX',
+                                    'Request.Authentication.password')
     
     def test_cc_numbers_are_not_saved_in_xml(self):
         txn = OrderTransaction.objects.create(order_number='1000',
@@ -383,7 +396,10 @@ class TransactionModelTests(TestCase, XmlTestingMixin):
         self.assertXmlElementEquals(txn.request_xml, 'XXXXXXXXXXXX0004', 'Request.Transaction.CardTxn.Card.pan')
 
 
-class GatewayWithCV2AVSMockTests(TestCase, XmlTestingMixin):
+class TestGatewayWithCV2AVSMock(TestCase, XmlTestingMixin):
+    """
+    Gateway using CV2AVS
+    """
 
     def setUp(self):
         self.gateway = Gateway('example.com', 'dummyclient', 'dummypassword', True)
@@ -412,7 +428,10 @@ class GatewayWithCV2AVSMockTests(TestCase, XmlTestingMixin):
         self.assertXmlElementEquals(response.request_xml, 'ecomm', 'Request.Transaction.TxnDetails.capturemethod')
 
 
-class GatewayWithoutCV2AVSMockTests(TestCase, XmlTestingMixin):
+class TestGatewayWithoutCV2AVSMock(TestCase, XmlTestingMixin):
+    """
+    Gateway without CV2AVS
+    """
 
     def setUp(self):
         self.gateway = Gateway('example.com', 'dummyclient', 'dummypassword')
@@ -624,8 +643,11 @@ class DeclinedResponseTests(TestCase):
 
 
 class MiscTests(TestCase):
+    """
+    Miscellaneous stuff:
+    """
 
-    def test_constant_exist(self):
+    def test_datacash_constant_exist(self):
         from datacash import DATACASH
         self.assertEqual('Datacash', DATACASH)
 
